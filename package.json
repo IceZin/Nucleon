@@ -1,0 +1,12 @@
+{
+    "name": "cosmos",
+    "version": "1.0.0",
+    "description": "",
+    "main": "pageRender.js",
+    "scripts": {
+        "start": "electron ."
+    },
+    "devDependencies": {
+        "electron": "^8.2.4"
+    }
+}

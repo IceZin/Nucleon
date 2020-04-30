@@ -1,0 +1,154 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <script src="pageControl.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+        <script src="https://kit.fontawesome.com/3e18bb4abc.js" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <div class="body">
+            <div class="title-div">
+                <div class="win-btns">
+                    <a class="win-btn">
+                        <i class="far fa-window-minimize"></i>
+                    </a>
+                    <a class="win-btn">
+                        <i class="far fa-window-maximize"></i>
+                    </a>
+                    <a class="close-btn">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="body-div">
+                <div class="body-elements left-nav">
+                    <ul>
+                        <li><a id="options">
+                            <i class="fas fa-cog icon-btn"></i>
+                            Options
+                        </a></li>
+                        <li><a id="charts">
+                            <i class="far fa-chart-bar icon-btn"></i>
+                            Charts
+                        </a></li>
+                        <li><a id="wifi">
+                            <i class="fas fa-wifi icon-btn"></i>
+                            WiFi
+                        </a></li>
+                        <li><a id="devices">
+                            <i class="fas fa-desktop icon-btn"></i>
+                            Devices
+                        </a></li>
+                        <li><a id="set">
+                            <i class="fas fa-upload icon-btn"></i>
+                            Set
+                        </a></li>
+                        <li><a id="clear">
+                            <i class="fas fa-times icon-btn"></i>
+                            Clear
+                        </a></li>
+                    </ul>
+                </div>
+                <div class="modals">
+                    <div class="body-elements body-modal" id="option-modal">
+                        <div class="option-element">
+                            <div class="modes">
+                                <div>
+                                    <input id="solid" class="check_btn" type="checkbox"></input>
+                                    <h1>Solid</h1>
+                                </div>
+                                <div>
+                                    <input id="autoctrl" class="check_btn" type="checkbox"></input>
+                                    <h1>Auto control</h1>
+                                </div>
+                                <div>
+                                    <input id="spectrumctrl" class="check_btn" type="checkbox"></input>
+                                    <h1>Spectrum</h1>
+                                </div>
+                                <div>
+                                    <input id="trail" class="check_btn" type="checkbox"></input>
+                                    <h1>Trail</h1>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="option-element">
+                            <div class="div-title"><h1>Mode Options</h1></div>
+                            <div class="opt-div" id="tr-opt">
+                                <div class="el-title"><h1>Trail</h1></div>
+                                <div class="slider-div">
+                                    <input type="range" id="vel-slider" min="0" max="100" value="0"></input>
+                                    <h1>Speed:</h1>
+                                    <h1 id="vel">0</h1>
+                                </div>
+                                <div class="slider-div">
+                                    <input type="range" id="len-slider" min="0" max="10" value="0"></input>
+                                    <h1>Len:</h1>
+                                    <h1 id="len">0</h1>
+                                </div>
+                            </div>
+                            <div class="opt-div" id="atc-opt">
+                                <div class="el-title"><h1>Auto Control</h1></div>
+                                <div class="slider-div">
+                                    <input type="range" id="lon-slider" min="0" max="1000" value="0"></input>
+                                    <h1>Light On:</h1>
+                                    <h1 id="lon">0</h1>
+                                </div>
+                                <div class="slider-div">
+                                    <input type="range" id="loff-slider" min="0" max="1000" value="0"></input>
+                                    <h1>Light Off:</h1>
+                                    <h1 id="loff">0</h1>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="option-element">
+                            <div class="div-title"><h1>Device Color</h1></div>
+                            <div class="slider-div">
+                                <input type="range" id="red-slider" min="0" max="255" value="0"></input>
+                                <h1>R:</h1>
+                                <h1 id="red">0</h1>
+                            </div>
+                            <div class="slider-div">
+                                <input type="range" id="green-slider" min="0" max="255" value="0"></input>
+                                <h1>G:</h1>
+                                <h1 id="green">0</h1>
+                            </div>
+                            <div class="slider-div">
+                                <input type="range" id="blue-slider" min="0" max="255" value="0"></input>
+                                <h1>B:</h1>
+                                <h1 id="blue">0</h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="body-elements body-modal-1" id="wifi-modal">
+                        <div class="wifi-element">
+                            <input id="spectrumctrl" class="check_btn" type="checkbox"></input>
+                            <h1>SSID:</h1>
+                            <h1>Formigao 2.4GHz</h1>
+                            <div class="wifi-separator"></div>
+                            <h1>RSSI:</h1>
+                            <div class="RSSI-bar">
+                                <div class="RSSI-progress"></div>
+                                <h1>-98 dBi</h1>
+                            </div>
+                            <div class="wifi-separator"></div>
+                            <h1>BSSID:</h1>
+                            <h1>52:a5:9b:10:3f:0c</h1>
+                        </div>
+                        <div class="wifi-element">
+                            <h1>SSID: </h1>
+                        </div>
+                        <div class="wifi-element">
+                            <h1>SSID: </h1>
+                        </div>
+                    </div>
+                    <div class="body-elements body-modal" id="chart-modal">
+                        <div class="chart-element">
+                            <canvas id="myChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="devices-nav" id="dvcs-list"></div>
+            </div>
+        </div>
+    </body>
+</html>
