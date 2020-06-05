@@ -1,71 +1,96 @@
 var http = require('http');
 var fs = require('fs');
 var net = require('net');
+const url = require('url');
 
 var portname = '192.168.0.8';
 var port = '1108';
 var clients = {};
 var clients_conn = [];
 const server = new net.Server();
-var DsBot;
+
+const dvcs_commands = {
+    "/api/device/data": function(data) {
+        console.log(data);
+        let dvc_addr = Object.keys(data)[0];
+        let dvc = clients[dvc_addr].conn;
+        let dvc_data = data[dvc_addr];
+        Object.keys(dvc_data.params).forEach(key => {
+            //if (dvc_data.params[key] == clients[dvc_addr].params[key]) return;
+            dvc.write(JSON.stringify({[key]: dvc_data.params[key]}));
+        })
+        clients[dvc_addr].params = dvc_data.params;
+    }
+}
 
 http.createServer((req, res) => {
     console.log(req.method);
     console.log(req.url);
-    if (req.url == "/"){
+    let req_attr = url.parse(req.url, true);
+    console.log(req_attr.path);
+    if (req_attr.pathname == "/"){
         res.writeHead(200, {
             'Content-Type': 'text/html',
-            'Access-Control-Allow-Origin': 'http://191.182.22.15:1108 http://192.168.0.8:1108'
+            'Access-Control-Allow-Origin': 'http://192.168.0.8:1108'
         });
         var htmlfile = fs.createReadStream('page.html');
         htmlfile.pipe(res);
-    } else if (req.url == "/style.css") {
+    } else if (req_attr.pathname == "/style.css") {
         res.writeHead(200, {
             'Content-Type': 'text/css'
         });
         var cssfile = fs.createReadStream('style.css');
         cssfile.pipe(res);
-    } else if (req.url == "/pageControl.js") {
+    } else if (req_attr.pathname == "/electron_style.css") {
+        res.writeHead(200, {
+            'Content-Type': 'text/css'
+        });
+        var cssfile = fs.createReadStream('./electron_src/electron_style.css');
+        cssfile.pipe(res);
+    } else if (req_attr.pathname == "/pageControl.js") {
         res.writeHead(200, {
             'Content-Type': 'text/javascript'
         });
         var jsfile = fs.createReadStream('pageControl.js');
         jsfile.pipe(res);
+    } else if (req_attr.pathname == "/ElectronJS.js") {
+        res.writeHead(200, {
+            'Content-Type': 'text/javascript'
+        });
+        var jsfile = fs.createReadStream('./electron_src/ElectronJS.js');
+        jsfile.pipe(res);
     }
     if (req.method == "GET"){
-        if (req.url == "/test") {
+        if (req_attr.pathname == "/test") {
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({"Name": "Teste"}));
-        } else if (req.url == "/api/devices") {
+        } else if (req_attr.pathname == "/api/devices") {
             res.writeHead(200, {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': 'http://192.168.0.8:1108'
             });
-            res.end(JSON.stringify({'connected': Object.keys(clients)}));
+            res.end(JSON.stringify(Object.keys(clients)));
+        } else if (req_attr.pathname == "/api/devices/aps") {
+            console.log(req_attr.query);
+            res.writeHead(200, {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': 'http://192.168.0.8:1108'
+            });
+            res.end(JSON.stringify({'APs': clients[req_attr.query['dvc']]['APs']}));
         }
     } else if (req.method == "POST") {
         req.on('data', function(data) {
             var data = JSON.parse(data);
-            console.log(data);
+            console.log(req.url);
+            try {
+                dvcs_commands[req.url](data);
+            } catch (err) {
+                console.log(err);
+                console.log('Path not found');
+            }
+            /*
             if (req.url == "/api/device/data") {
                 res.writeHead(200, {'Content-Type': 'text/html'});
-                clients_conn[data.device].write(`<RGB=[${data.RGB[0]},${data.RGB[1]},${data.RGB[2]}]>`);
-                if (data.mode) {
-                    if (data.state) {
-                        console.log(data.mode);
-                        if (data.mode == "trail") {
-                            clients_conn[data.device].write(`<speed=${data.speed}>`);
-                            clients_conn[data.device].write(`<len=${data.length}>`);
-                            clients_conn[data.device].write(`<${data.mode}>`);
-                        } else if (data.mode == "autoctrl") {
-                            clients_conn[data.device].write(`<${data.mode}=[${data.light_on},${data.light_off}]>`);
-                        } else {
-                            clients_conn[data.device].write(`<${data.mode}>`);
-                            console.log("Sent diff command");
-                        }
-                    } else {
-                        clients_conn[data.device].write(`<clear>`);
-                    }
-                }
             } else if (req.url == "/api/device/lightinfo") {
                 try {
                     res.writeHead(200, {'Content-Type': 'application/json'});
@@ -73,7 +98,7 @@ http.createServer((req, res) => {
                 } catch (err) {
                     res.writeHead(404);
                 }
-            }
+            }*/
         });
         req.on('end', function() {
             res.end();
@@ -89,24 +114,25 @@ server.listen(1107, function(){
 });
 
 server.on('connection', function(client) {
+    client.setTimeout(2000);
     console.log("New connection");
-    client.on('data', function(data) {
-        console.log(data.toString());
-        var data = JSON.parse(data.toString());
+    client.on('data', function(raw) {
+        //console.log(raw.toString());
+        var data = JSON.parse(raw.toString());
+        console.log(data);
         if (data.address) {
-            clients[data.address] = {
-                'lightD': {},
-                'lRecvd': false,
-                'interval': null,
-                'type': null
-            }
-            clients_conn.push(client); 
-            if (data.type == "attacker") {
-                client.write("{deauthAll}");
-                client.write("{attackStart}");
-            } else if (data.type == "subdevice") {
-                sendLightCmd(client);
-                clients[data[1]].interval = setInterval(sendLightCmd, 5000, client);
+            if (data.type == "subdevice") {
+                clients[data.address.split(' ').join('_')] = {
+                    'conn': client,
+                    'lightD': {},
+                    'lRecvd': false,
+                    'interval': null,
+                    'type': null,
+                    'params': {},
+                    'APs': []
+                }
+                /*sendLightCmd(data.address);
+                clients.subdevice[data.address].interval = setInterval(sendLightCmd, 5000, data.address);*/
             }
         } else if (data.command) {
             if (data.command == "light") {
@@ -126,38 +152,39 @@ server.on('connection', function(client) {
 
                 clients[client_addr].lRecvd = true;
             }
+        } else if (data.AP) {
+            clients['attacker']['AttackerESP'].APs.push(data.AP);
+            console.log(clients['attacker']['AttackerESP'].APs);
         }
     });
+    client.on('error', function(err) {
+        console.log(err);
+        console.log("[*] CLient Error");
+        deleteClient(client);
+    })
     client.on('end', function() {
         deleteClient(client);
     });
 });
 
 function sendLightCmd(client) {
-    writeCommand(client, "<lightInfo>");
-    let client_addr = Object.keys(clients)[clients_conn.indexOf(client)];
-    if (client_addr != null) {
-        if(!clients[client_addr].lRecvd) {
-            console.log("Not received");
-        } else {
-            clients[client_addr].lRecvd = false;
-        }
+    writeCommand(clients.subdevice[client].conn, "<lightInfo>");
+    if(!clients.subdevice[client].lRecvd) {
+        console.log("Not received");
+    } else {
+        clients.subdevice[client].lRecvd = false;
     }
 }
 
 function deleteClient(client) {
-    let client_ind = clients_conn.indexOf(client);
-    console.log(client_ind);
-    if (client_ind != null) {
-        try {
-            clearInterval(clients[Object.keys(clients)[client_ind]].interval);
-            clients_conn.splice(client_ind, 1);
-            delete clients[Object.keys(clients)[client_ind]];
-            console.log("Client disconnected");
-        } catch (err) {
-            console.log(err);
+    Object.keys(clients).forEach(function(dvc) {
+        if (clients[dvc].conn == client) {
+            console.log(`[*] Client disconnected: ${dvc}`);
+            clearInterval(clients[dvc].interval)
+            delete clients[dvc];
+            return;
         }
-    }
+    })
 }
 
 function writeCommand(client, command) {
@@ -169,10 +196,10 @@ function writeCommand(client, command) {
 }
 
 function sendKeepalive(){
-    clients_conn.forEach(client => {
+    Object.keys(clients).forEach(client => {
         console.log("Sending keep alive");
         try {
-            client.write("0");
+            clients[client].conn.write("0");
         } catch (err) {
             console.log("Client not receiving keep alive packet");
         }

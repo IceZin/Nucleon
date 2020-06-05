@@ -1,10 +1,12 @@
 var active_modal = null;
 var active_dvc = null;
+var fadeSide = null;
 var active_slider;
-var devices = [];
-var devices_addr = [];
+var devices = {};
 const xml = new XMLHttpRequest();
 var light_inter;
+var lightChart;
+const ip = "191.182.0.96";
 
 window.onload = function() {
     document.getElementsByClassName('left-nav')[0].querySelectorAll('a').forEach(element => {
@@ -15,12 +17,17 @@ window.onload = function() {
     setButtons();
     drawChart();
     getDevices();
+    if (navigator.userAgent.indexOf('Electron') >= 0) {
+        import('/ElectronJS.js').then(lib => {
+            lib.testFunc();
+        })
+    }
 }
 
 function setModes() {
     var checkbtns = document.getElementsByClassName("modes")[0].querySelectorAll("input");
     checkbtns.forEach(btn => {
-        btn.onclick = deviceMode;
+        btn.onclick = dvcMode;
     })
 }
 
@@ -30,6 +37,10 @@ function setButtons() {
     Array.from(buttons).forEach(btn => {
         btn.onclick = deviceSend;
     })
+    let rgb_side = document.getElementsByClassName("grad-container")[0].querySelectorAll('input');
+    rgb_side.forEach(btn => {
+        btn.onclick = fadeCtrl;
+    })
 }
 
 function setSliders() {
@@ -38,161 +49,113 @@ function setSliders() {
     var b_slider = document.getElementById('blue-slider');
     var vel_slider = document.getElementById('vel-slider');
     var len_slider = document.getElementById('len-slider');
-    var lon_slider = document.getElementById('lon-slider');
-    var loff_slider = document.getElementById('loff-slider');
+    let grad = document.getElementsByClassName('grad')[0].style;
     r_slider.oninput = function() {
         document.getElementById('red').innerHTML = r_slider.value;
         if (active_dvc != null) {
-            devices[active_dvc].RGB[0] = r_slider.value;
+            let dvc_params = devices[active_dvc].params;
+            dvc_params[fadeSide][0] = r_slider.value;
+            document.getElementById(fadeSide).style.backgroundColor = `rgb(${dvc_params[fadeSide].join(',')})`;
+            grad.backgroundImage = `linear-gradient(to right, rgb(${dvc_params['RGBs'].join(',')}), rgb(${dvc_params['RGBe'].join(',')}))`;
         }
     }
     g_slider.oninput = function() {
         document.getElementById('green').innerHTML = g_slider.value;
         if (active_dvc != null) {
-            devices[active_dvc].RGB[1] = g_slider.value;
+            let dvc_params = devices[active_dvc].params;
+            dvc_params[fadeSide][1] = g_slider.value;
+            document.getElementById(fadeSide).style.backgroundColor = `rgb(${dvc_params[fadeSide].join(',')})`;
+            grad.backgroundImage = `linear-gradient(to right, rgb(${dvc_params['RGBs'].join(',')}), rgb(${dvc_params['RGBe'].join(',')}))`;
         }
     }    
     b_slider.oninput = function() {
         document.getElementById('blue').innerHTML = b_slider.value;
         if (active_dvc != null) {
-            devices[active_dvc].RGB[2] = b_slider.value;
+            let dvc_params = devices[active_dvc].params;
+            dvc_params[fadeSide][2] = b_slider.value;
+            document.getElementById(fadeSide).style.backgroundColor = `rgb(${dvc_params[fadeSide].join(',')})`;
+            grad.backgroundImage = `linear-gradient(to right, rgb(${dvc_params['RGBs'].join(',')}), rgb(${dvc_params['RGBe'].join(',')}))`;
         }
     }
     vel_slider.oninput = function() {
         document.getElementById('vel').innerHTML = vel_slider.value;
         if (active_dvc != null) {
-            devices[active_dvc].speed = vel_slider.value;
+            let dvc_params = devices[active_dvc].params;
+            dvc_params.speed = vel_slider.value;
         }
     }
     len_slider.oninput = function() {
         document.getElementById('len').innerHTML = len_slider.value;
         if (active_dvc != null) {
-            console.log(devices[active_dvc]);
-            devices[active_dvc].length = len_slider.value;
-        }
-    }
-    lon_slider.oninput = function() {
-        document.getElementById('lon').innerHTML = lon_slider.value;
-        if (active_dvc != null) {
-            console.log(devices[active_dvc]);
-            devices[active_dvc].light_on = lon_slider.value;
-        }
-    }
-    loff_slider.oninput = function() {
-        document.getElementById('loff').innerHTML = loff_slider.value;
-        if (active_dvc != null) {
-            console.log(devices[active_dvc]);
-            devices[active_dvc].light_off = loff_slider.value;
+            let dvc_params = devices[active_dvc].params;
+            dvc_params.length = len_slider.value;
         }
     }
 }
 
 function getDevices() {
-    xml.open("GET", 'http://191.182.22.15:1108/api/devices');
+    xml.open("GET", `http://${ip}:1108/api/devices`);
     xml.send();
     xml.onreadystatechange = function(){
         if(this.readyState == 4 && this.status == 200) {
-            var dvcs_con = JSON.parse(this.responseText).connected;
-            var div = document.getElementsByClassName('devices-nav')[0];
-            var childs = div.childNodes;
-            for (var i = 0; i < div.childElementCount; i++) {
-                if (!dvcs_con.includes(childs[i].querySelector('h1').innerHTML)) {
-                    div.removeChild(childs[i]);
-                    delete devices_addr[childs[i].querySelector('h1').innerHTML];
+            let dvcs = JSON.parse(this.responseText);
+            let div = document.getElementById('dvcs');
+            div.childNodes.forEach(function(value, i) {
+                if (Object.keys(devices).includes(value.id)) return;
+                if (value != div.querySelector('.dvc-title')) {
+                    div.removeChild(value);
                 }
-            }
-            var i = div.childElementCount;
-            dvcs_con.forEach(client_addr => {
-                if (!devices_addr.includes(client_addr)) {
-                    addClient(client_addr, i);
-                    devices_addr.push(client_addr);
-                    i++;
-                }
+            })
+            dvcs.forEach(dvc => {
+                if (Object.keys(devices).includes(dvc)) return;
+                addClient(dvc, 'dvcs');
             })
         }
     }
 }
 
-function addClient(client, index) {
-    var div = document.getElementsByClassName('devices-nav')[0];
-    var div2 = document.createElement('div');
-    var btn = document.createElement('input');
-    var h1 = document.createElement('h1');
+function addClient(client, type) {
+    var dvc_check = `
+        <div id=${client}>
+            <input class="check_btn" type="checkbox"></input>
+            <h1>${client}</h1>
+        </div>
+    `
 
-    btn.id = `dvc-${index}`;
-    btn.className = "check_btn";
-    btn.type = "checkbox";
-    btn.onclick = selectDevice;
+    document.getElementById(type).insertAdjacentHTML('beforeend', dvc_check);
+    document.getElementById(client).querySelector('input').onclick = selectDevice;
 
-    h1.innerHTML = client;
-
-    div2.appendChild(btn);
-    div2.appendChild(h1);
-
-    div.appendChild(div2);
-
-    devices.push({
-        'name': client,
-        'device': index,
-        'state': false,
-        'mode': null,
-        'speed': 0,
-        'length': 0,
-        'light_on': 0,
-        'light_off': 0,
-        'RGB': []
-    });
-}
-
-function addAP(ssid, rssi, bssid) {
-    var wifi_modal = document.getElementById("wifi-modal");
-    var div = document.createElement('div');
-    div.className = "wifi-element";
-
-    var h1 = document.createElement('h1');
-    h1.innerHTML = "SSID:"
-    div.appendChild(h1);
-
-    h1.innerHTML = ssid;
-    div.appendChild(h1)
-
-    var separator = document.createElement('div');
-    separator.className = "wifi-separator";
-    div.appendChild(separator);
-
-    h1.innerHTML = "RSSI:";
-    div.appendChild(h1);
-
-    var rssi_bar = document.createElement('div');
-    rssi_bar.className = "RSSI-bar";
-    var rssi_progress = document.createElement('div');
-    rssi_progress.className = "RSSI-progress";
-    rssi_bar.appendChild(rssi_progress);
-    div.appendChild(rssi_bar);
-    h1.innerHTML = rssi;
-    div.appendChild(h1);
-
-    div.appendChild(separator);
-
-    h1.innerHTML = "BSSID:";
-    div.appendChild(h1);
-
-    h1.innerHTML = bssid;
-    div.appendChild(h1);
-
-    wifi_modal.appendChild(div);
+    if (type == 'dvcs') {
+        devices[client] = {
+            'type': 'sub',
+            'params': {
+                'RGBs': [0,0,0],
+                'RGBe': [0,0,0],
+                'state': false,
+                'mode': null,
+                'speed': 0,
+                'length': 0
+            },
+            'APs': {}
+        };
+    }
 }
 
 function options_click() {
     console.log(this.id);
     if (this.id == "options") {
-        controlModal("option-modal");
+        if (active_dvc) {
+            controlModal("option-modal");
+        }
     } else if (this.id == "charts") {
         controlModal("chart-modal");
         //getLigthInfo();
         //light_inter = setInterval(getLigthInfo, 5000);
     } else if (this.id == "wifi") {
         controlModal("wifi-modal");
+        if (active_dvc != null && active_modal != null) {
+            updateWiFi();
+        }
     } else if (this.id == "devices") {
         if (active_slider == null) {
             getDevices();
@@ -284,7 +247,7 @@ function clearChart() {
 function getLigthInfo() {
     lightChart.data.labels = [];
     lightChart.data.datasets[0].data = [];
-    sendJSON("api/device/lightinfo", function(l_data, res_sts) {
+    sendJSON("api/device/lightinfo", JSON.stringify(devices[active_dvc]), function(l_data, res_sts) {
         if (res_sts == 200) {
             l_data = JSON.parse(l_data);
             Object.keys(l_data).forEach(time => {
@@ -301,11 +264,11 @@ function getLigthInfo() {
     });
 }
 
-function sendJSON(url, callback) {
-    xml.open("POST", `http://191.182.22.15:1108/${url}`);
-    xml.setRequestHeader('Content-Type', 'application/json');
+function sendJSON(url, json, callback) {
+    xml.open("POST", `http://${ip}:1108/${url}`);
+    xml.setRequestHeader('Content-Type', 'text/plain');
     console.log(devices[active_dvc]);
-    xml.send(JSON.stringify(devices[active_dvc]));
+    xml.send(JSON.stringify(json));
     xml.onreadystatechange = function(){
         if(this.readyState == 4) {
             callback(this.responseText, this.status);
@@ -324,51 +287,74 @@ function closeDvcs() {
 function selectDevice(){
     if (this.checked) {
         if (active_dvc != null) {
-            document.getElementById(`dvc-${active_dvc}`).checked = false;
-            clearInterval(light_inter);
+            document.getElementById(active_dvc).querySelector('input').checked = false;
+            //clearInterval(light_inter);
         }
-        active_dvc = parseInt(this.id.substring(4, this.id.length));
-        deviceAttr();
-        getLigthInfo();
-        light_inter = setInterval(getLigthInfo, 5000);
+        active_dvc = this.parentNode.id;
+        if (devices[this.parentNode.id].type == 'sub') {
+            deviceAttr();
+            //getLigthInfo();
+            //light_inter = setInterval(getLigthInfo, 5000);
+        }
     } else {
         active_dvc = null;
-        clearInterval(light_inter);
+        //clearInterval(light_inter);
         clearChart();
     }
+    console.log(active_dvc);
 }
 
-function deviceRGB(r, g, b) {
-    devices[active_dvc].RGB = [r, g, b];
-    console.log(devices[active_dvc].RGB);
-}
-
-function deviceMode() {
+function dvcMode() {
     var checkbtns = document.getElementsByClassName("modes")[0].querySelectorAll("input");
     checkbtns.forEach(btn => {
         if (btn.id != this.id) {
             btn.checked = false;
         }
     })
+    
     if (active_dvc != null) {
         console.log(this.id);
-        devices[active_dvc].mode = this.id;
+        devices[active_dvc].params.mode = this.id;
     }
 }
 
 function deviceSend(id) {
     console.log(id);
     console.log(active_dvc);
+
     if (active_dvc != null) {
         console.log("Sending mode");
+
         if (id == "set") {
             console.log('sending');
-            devices[active_dvc].state = true;
+            updateClientData();
+            devices[active_dvc].params.state = true;
         } else {
-            devices[active_dvc].state = false;
+            devices[active_dvc].params.state = false;
         }
-        sendJSON("api/device/data");
+
+        console.log(devices[active_dvc].params)
+        sendJSON(`api/device/data`, {[active_dvc]: devices[active_dvc]});
     }
+}
+
+function updateClientData() {
+    if (devices[active_dvc].type == 'atk') {
+        devices[active_dvc].targets = getTargets();
+        console.log(devices[active_dvc].targets);
+
+        if (devices[active_dvc].params.mode == 'scanNetworks') setTimeout(updateWiFi, 3000);
+    }
+}
+
+function getTargets() {
+    let targets = [];
+
+    document.getElementById('wifi-modal').querySelectorAll('input').forEach(function(target, i) {
+        if (target.checked) targets.push(i);
+    })
+
+    return targets;
 }
 
 function deviceAttr() {
@@ -377,11 +363,76 @@ function deviceAttr() {
     var b = document.getElementById('blue-slider').value;
     var spd = document.getElementById('vel-slider').value;
     var len = document.getElementById('len-slider').value;
-    var lon = document.getElementById('lon-slider').value;
-    var loff = document.getElementById('loff-slider').value;
-    deviceRGB(r, g, b);
-    devices[active_dvc].speed = spd;
-    devices[active_dvc].length = len;
-    devices[active_dvc].light_on = lon;
-    devices[active_dvc].light_off = loff;
+
+    devices[active_dvc].params.RGBs = [r, g, b];
+    devices[active_dvc].params.speed = spd;
+    devices[active_dvc].params.length = len;
+}
+
+function updateWiFi() {
+    document.getElementById('wifi-modal').innerHTML = "";
+
+    xml.open("GET", `http://${ip}:1108/api/devices/aps?dvc=${active_dvc}`);
+    xml.send();
+    xml.onreadystatechange = function(){
+        if(this.readyState == 4 && this.status == 200) {
+            let res = JSON.parse(this.responseText);
+            console.log(res);
+
+            res.APs.forEach(ap => {
+                let rssi = Math.abs(parseInt(ap.RSSI));
+                let color = "c10000";
+
+                if (rssi <= 60) {
+                    color = "#00b100";
+                } else if (rssi > 60 && rssi <= 70) {
+                    color = "#ff6700"
+                }
+
+                var wifi_dvc = `<div class="wifi-element">
+                    <input id="spectrumctrl" class="check_btn" type="checkbox"></input>
+                    <h1>SSID:</h1>
+                    <h1>${ap.SSID}</h1>
+                    <div class="wifi-separator"></div>
+                    <h1>RSSI:</h1>
+                    <div class="RSSI-bar">
+                        <div class="RSSI-progress" style="width: ${rssi}%; background-color: ${color}"></div>
+                        <h1>${ap.RSSI}</h1>
+                    </div>
+                    <div class="wifi-separator"></div>
+                    <h1>BSSID:</h1>
+                    <h1>${ap.BSSID}</h1>
+                    <div class="wifi-separator"></div>
+                    <h1>CHANNEL:</h1>
+                    <h1>${ap.CH}</h1>
+                </div>`
+                document.getElementById('wifi-modal').insertAdjacentHTML('beforeend', wifi_dvc);
+            });
+        }
+    }
+}
+
+function ap_hdl() {
+    let btns = document.getElementById('wifi-modal').getElementsByTagName('input');
+    let targets = [];
+
+    for (let i = 0; i < btns.length; i++) {
+        if (btns[i].checked) targets.push(i);
+    }
+
+    sendJSON(`/api/device/deauth?dvc=${active_dvc}`, targets);
+}
+
+function fadeCtrl() {
+    if (fadeSide != this.id) {
+        console.log(fadeSide);
+        fadeSide = this.id;
+        let dvc_params = devices[active_dvc].params;
+        document.getElementById('red-slider').value = dvc_params[fadeSide][0];
+        document.getElementById('green-slider').value = dvc_params[fadeSide][1];
+        document.getElementById('blue-slider').value = dvc_params[fadeSide][2];
+        document.getElementById('red').innerHTML = dvc_params[fadeSide][0];
+        document.getElementById('green').innerHTML = dvc_params[fadeSide][1];
+        document.getElementById('blue').innerHTML = dvc_params[fadeSide][2];
+    }
 }
