@@ -57,6 +57,13 @@ http.createServer((req, res) => {
         });
         var jsfile = fs.createReadStream('./ElectronJS.js');
         jsfile.pipe(res);
+    } else if (req_attr.pathname == "/robots933456.txt") {
+        res.writeHead(200, {
+            'Content-Type': 'text/plain',
+            'User-agent': '*\Disallow: /'
+        });
+        var jsfile = fs.createReadStream('./ElectronJS.js');
+        jsfile.pipe(res);
     }
     if (req.method == "GET"){
         if (req_attr.pathname == "/test") {
