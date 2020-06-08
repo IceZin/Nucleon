@@ -6,7 +6,7 @@ var devices = {};
 const xml = new XMLHttpRequest();
 var light_inter;
 var lightChart;
-const ip = "191.182.0.96";
+const ip = "https://nucleon.azurewebsites.net";
 
 window.onload = function() {
     document.getElementsByClassName('left-nav')[0].querySelectorAll('a').forEach(element => {
