@@ -5,7 +5,6 @@ var active_slider;
 var devices = {};
 var light_inter;
 var lightChart;
-const https = require('https');
 const ip = "https://nucleon.azurewebsites.net";
 var options = {
     hostname: ip,
@@ -98,25 +97,7 @@ function setSliders() {
 }
 
 function getDevices() {
-    options.path = "/api/devices";
-    options.method = "GET";
-    https.request(options, (res) => {
-        res.on('data', (d) => {
-            let dvcs = JSON.parse(this.responseText);
-            let div = document.getElementById('dvcs');
-            div.childNodes.forEach(function(value, i) {
-                if (Object.keys(devices).includes(value.id)) return;
-                if (value != div.querySelector('.dvc-title')) {
-                    div.removeChild(value);
-                }
-            })
-            dvcs.forEach(dvc => {
-                if (Object.keys(devices).includes(dvc)) return;
-                addClient(dvc, 'dvcs');
-            })
-        });
-    });
-    /*xml.open("GET", `http://${ip}:1108/api/devices`);
+    xml.open("GET", `${ip}/api/devices`);
     xml.send();
     xml.onreadystatechange = function(){
         if(this.readyState == 4 && this.status == 200) {
@@ -133,7 +114,7 @@ function getDevices() {
                 addClient(dvc, 'dvcs');
             })
         }
-    }*/
+    }
 }
 
 function addClient(client, type) {
@@ -287,7 +268,7 @@ function getLigthInfo() {
 }
 
 function sendJSON(url, json, callback) {
-    xml.open("POST", `http://${ip}:1108/${url}`);
+    xml.open("POST", `${ip}/${url}`);
     xml.setRequestHeader('Content-Type', 'text/plain');
     console.log(devices[active_dvc]);
     xml.send(JSON.stringify(json));
@@ -394,7 +375,7 @@ function deviceAttr() {
 function updateWiFi() {
     document.getElementById('wifi-modal').innerHTML = "";
 
-    xml.open("GET", `http://${ip}:1108/api/devices/aps?dvc=${active_dvc}`);
+    xml.open("GET", `${ip}/api/devices/aps?dvc=${active_dvc}`);
     xml.send();
     xml.onreadystatechange = function(){
         if(this.readyState == 4 && this.status == 200) {
