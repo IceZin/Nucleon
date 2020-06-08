@@ -3,8 +3,7 @@ var fs = require('fs');
 var net = require('net');
 const url = require('url');
 
-var portname = 'localhost';
-var port = '8080';
+const port = process.env.PORT || 1337;
 var clients = {};
 var clients_conn = [];
 const server = new net.Server();
@@ -104,8 +103,8 @@ http.createServer((req, res) => {
             res.end();
         });
     }
-}).listen(port, portname, () => {
-    console.log(`Server is running on server http://${portname}:${port}`);
+}).listen(port, () => {
+    console.log(`Server is running on server http://$localhost:${port}`);
 });
 
 server.listen(1107, function(){
