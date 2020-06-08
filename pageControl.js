@@ -5,6 +5,7 @@ var active_slider;
 var devices = {};
 var light_inter;
 var lightChart;
+const xml = new XMLHttpRequest();
 const ip = "https://nucleon.azurewebsites.net";
 var options = {
     hostname: ip,
