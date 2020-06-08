@@ -2,7 +2,5 @@
     "appService.zipIgnorePattern": [
         "node_modules{,/**}",
         ".vscode{,/**}"
-    ],
-    "appService.deploySubpath": ".",
-    "appService.defaultWebAppToDeploy": "/subscriptions/20be63e1-1673-4c41-80bf-0931447c09b6/resourceGroups/Nucleon/providers/Microsoft.Web/sites/nucleon"
+    ]
 }
