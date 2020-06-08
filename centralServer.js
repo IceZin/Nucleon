@@ -3,8 +3,8 @@ var fs = require('fs');
 var net = require('net');
 const url = require('url');
 
-var portname = '192.168.0.8';
-var port = '1108';
+var portname = 'localhost';
+var port = '8080';
 var clients = {};
 var clients_conn = [];
 const server = new net.Server();
