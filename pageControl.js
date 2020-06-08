@@ -3,10 +3,14 @@ var active_dvc = null;
 var fadeSide = null;
 var active_slider;
 var devices = {};
-const xml = new XMLHttpRequest();
 var light_inter;
 var lightChart;
+const https = require('https');
 const ip = "https://nucleon.azurewebsites.net";
+var options = {
+    hostname: ip,
+    port: 8080
+}
 
 window.onload = function() {
     document.getElementsByClassName('left-nav')[0].querySelectorAll('a').forEach(element => {
@@ -94,7 +98,25 @@ function setSliders() {
 }
 
 function getDevices() {
-    xml.open("GET", `http://${ip}:1108/api/devices`);
+    options.path = "/api/devices";
+    options.method = "GET";
+    https.request(options, (res) => {
+        res.on('data', (d) => {
+            let dvcs = JSON.parse(this.responseText);
+            let div = document.getElementById('dvcs');
+            div.childNodes.forEach(function(value, i) {
+                if (Object.keys(devices).includes(value.id)) return;
+                if (value != div.querySelector('.dvc-title')) {
+                    div.removeChild(value);
+                }
+            })
+            dvcs.forEach(dvc => {
+                if (Object.keys(devices).includes(dvc)) return;
+                addClient(dvc, 'dvcs');
+            })
+        });
+    });
+    /*xml.open("GET", `http://${ip}:1108/api/devices`);
     xml.send();
     xml.onreadystatechange = function(){
         if(this.readyState == 4 && this.status == 200) {
@@ -111,7 +133,7 @@ function getDevices() {
                 addClient(dvc, 'dvcs');
             })
         }
-    }
+    }*/
 }
 
 function addClient(client, type) {
