@@ -63,7 +63,8 @@ var httpserver = http.createServer((req, res) => {
     } else if (req_attr.pathname == "/robots933456.txt") {
         res.writeHead(200, {
             'Content-Type': 'text/plain',
-            'User-agent': '*\Disallow: /'
+            'User-agent': '*',
+            'Disallow': '/'
         });
     }
 
@@ -134,7 +135,7 @@ httpserver.on('upgrade', (req, sock, head) => {
 });
 
 httpserver.listen(port, () => {
-    console.log(`Server is running on server http://localhost:${port}`);
+    console.log(`Server is running on port ${port}`);
 });
 
 function deleteClient(client) {
