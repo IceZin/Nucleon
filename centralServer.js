@@ -63,8 +63,8 @@ var httpserver = http.createServer((req, res) => {
     } else if (req_attr.pathname == "/robots933456.txt") {
         res.writeHead(200, {
             'Content-Type': 'text/plain',
-            'User-agent': '*',
-            'Disallow': '/'
+            'user-agent': '*',
+            'Allow': '/'
         });
     }
 
