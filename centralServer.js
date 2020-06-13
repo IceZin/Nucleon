@@ -2,7 +2,7 @@ var http = require('https');
 var fs = require('fs');
 const url = require('url');
 
-const port = 443;
+const port = process.env.PORT || 443;
 var clients = {};
 
 const dvcs_commands = {
