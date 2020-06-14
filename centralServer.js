@@ -1,8 +1,9 @@
 var http = require('http');
 var fs = require('fs');
+const WebSocket = require('ws');
 const url = require('url');
 
-const port = process.env.PORT || 1337;
+const port = process.env.PORT || 80;
 var clients = {};
 
 const dvcs_commands = {
@@ -18,6 +19,27 @@ const dvcs_commands = {
         clients[dvc_addr].params = dvc_data.params;
     }
 }
+
+const wssServer = new WebSocket.Server({noServer: true});
+
+wssServer.on('connection', function connection(ws, name) {
+    console.log(`[*] New connection | ${name}`);
+    ws.on('message', msg => {
+        console.log(`Messagem from ${name}\n${msg}\n`);
+    });
+    ws.on('close', function() {
+        deleteClient(ws);
+    });
+    clients[name] = {
+        'conn': ws,
+        'lightD': {},
+        'lRecvd': false,
+        'interval': null,
+        'type': null,
+        'params': {},
+        'APs': []
+    };
+});
 
 var httpserver = http.createServer((req, res) => {
     console.log(req.method);
@@ -104,33 +126,15 @@ var httpserver = http.createServer((req, res) => {
 });
 
 httpserver.on('upgrade', (req, sock, head) => {
-    if (req.headers['upgrade'] !== 'WebSocket' && req.headers['origin'] !== null) {
-        sock.end('HTTP/1.1 400 Bad Request');
+    console.log(req.headers);
+    if (req.headers['upgrade'] !== 'websocket' && req.headers['origin']) {
+        sock.end('HTTP/1.1 400 Bad Request\r\n\r\n');
         return;
     }
 
-    sock.write('HTTP/1.1 101 Switching protocols');
-    console.log(`[*] New Connection | ${req.headers['origin']}`);
-
-    sock.setEncoding("utf8");
-
-    sock.on('data', function(data) {
-        console.log(data);
+    wssServer.handleUpgrade(req, sock, head, function done(ws) {
+        wssServer.emit('connection', ws, req.headers['origin'].split(' ').join('_'));
     });
-
-    sock.on('end', function() {
-        deleteClient(sock);
-    });
-
-    clients[req.headers['origin'].split(' ').join('_')] = {
-        'conn': sock,
-        'lightD': {},
-        'lRecvd': false,
-        'interval': null,
-        'type': null,
-        'params': {},
-        'APs': []
-    };
 });
 
 httpserver.listen(port, () => {

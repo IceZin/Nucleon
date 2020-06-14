@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/IceZin/Cosmos#readme",
   "dependencies": {
-    "electron": "^9.0.4"
+    "electron": "^9.0.4",
+    "ws": "^7.3.0"
   }
 }
