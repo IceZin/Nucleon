@@ -66,6 +66,7 @@ var httpserver = http.createServer((req, res) => {
             'user-agent': '*',
             'Allow': '/'
         });
+        res.end();
     }
 
     if (req.method == "GET"){
