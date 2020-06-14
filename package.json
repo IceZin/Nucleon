@@ -15,8 +15,5 @@
   "bugs": {
     "url": "https://github.com/IceZin/Cosmos/issues"
   },
-  "homepage": "https://github.com/IceZin/Cosmos#readme",
-  "dependencies": {
-    "ws": "^7.3.0"
-  }
+  "homepage": "https://github.com/IceZin/Cosmos#readme"
 }
