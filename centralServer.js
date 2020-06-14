@@ -44,7 +44,7 @@ var httpserver = http.createServer((req, res) => {
             'Content-Type': 'text/css'
         });
 
-        var cssfile = fs.createReadStream('/electron_style.css');
+        var cssfile = fs.createReadStream('electron_style.css');
         cssfile.pipe(res);
     } else if (req_attr.pathname == "/pageControl.js") {
         res.writeHead(200, {
@@ -58,7 +58,7 @@ var httpserver = http.createServer((req, res) => {
             'Content-Type': 'text/javascript'
         });
 
-        var jsfile = fs.createReadStream('/ElectronJS.js');
+        var jsfile = fs.createReadStream('ElectronJS.js');
         jsfile.pipe(res);
     } else if (req_attr.pathname == "/robots933456.txt") {
         res.writeHead(200, {

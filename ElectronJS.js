@@ -1,5 +1,4 @@
 const {remote} = require('electron')
-const React = require('react')
 
 function createTitleBar() {
     const title_bar = `
