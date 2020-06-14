@@ -106,7 +106,7 @@ var httpserver = http.createServer((req, res) => {
 httpserver.on('upgrade', (req, sock, head) => {
     console.log(req);
 
-    if (req.headers['upgrade'] !== 'WebSocket' && req.headers['origin']) {
+    if (req.headers['upgrade'] !== 'WebSocket' && req.headers['origin'] !== null) {
         sock.end('HTTP/1.1 400 Bad Request');
         return;
     }
