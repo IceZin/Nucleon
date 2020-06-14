@@ -127,13 +127,14 @@ var httpserver = http.createServer((req, res) => {
 
 httpserver.on('upgrade', (req, sock, head) => {
     console.log(req.headers);
-    if (req.headers['upgrade'] !== 'websocket' && req.headers['origin']) {
+    console.log(req.url);
+    if (req.headers['upgrade'] !== 'websocket') {
         sock.end('HTTP/1.1 400 Bad Request\r\n\r\n');
         return;
     }
 
     wssServer.handleUpgrade(req, sock, head, function done(ws) {
-        wssServer.emit('connection', ws, req.headers['origin'].split(' ').join('_'));
+        wssServer.emit('connection', ws, url.parse(req.url, true).query['dvc'].split(' ').join('_'));
     });
 });
 
