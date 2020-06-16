@@ -15,7 +15,7 @@ const dvcs_commands = {
         let dvc_data = data[dvc_addr];
         Object.keys(dvc_data.params).forEach(key => {
             //if (dvc_data.params[key] == clients[dvc_addr].params[key]) return;
-            dvc.write(JSON.stringify({[key]: dvc_data.params[key]}));
+            dvc.send(JSON.stringify({[key]: dvc_data.params[key]}));
         });
         clients[dvc_addr].params = dvc_data.params;
     }
