@@ -2,6 +2,7 @@ var http = require('http');
 var fs = require('fs');
 const WebSocket = require('ws');
 const url = require('url');
+const { setInterval } = require('timers');
 
 const port = process.env.PORT || 80;
 var clients = {};
@@ -15,7 +16,7 @@ const dvcs_commands = {
         Object.keys(dvc_data.params).forEach(key => {
             //if (dvc_data.params[key] == clients[dvc_addr].params[key]) return;
             dvc.write(JSON.stringify({[key]: dvc_data.params[key]}));
-        })
+        });
         clients[dvc_addr].params = dvc_data.params;
     }
 }
@@ -28,7 +29,8 @@ wssServer.on('connection', function connection(ws, name) {
         console.log(`Messagem from ${name}\n${msg}\n`);
     });
     ws.on('close', function() {
-        deleteClient(ws);
+        delete clients[name];
+        console.log(`[*] Client disconnected | ${name}`);
     });
     clients[name] = {
         'conn': ws,
@@ -42,10 +44,7 @@ wssServer.on('connection', function connection(ws, name) {
 });
 
 var httpserver = http.createServer((req, res) => {
-    console.log(req.method);
-    console.log(req.url);
     let req_attr = url.parse(req.url, true);
-    console.log(req_attr.path);
 
     if (req_attr.pathname == "/"){
         res.writeHead(200, {
@@ -92,10 +91,7 @@ var httpserver = http.createServer((req, res) => {
     }
 
     if (req.method == "GET"){
-        if (req_attr.pathname == "/test") {
-            res.setHeader('Content-Type', 'application/json');       
-            res.end(JSON.stringify({"Name": "Teste"}));
-        } else if (req_attr.pathname == "/api/devices") {
+        if (req_attr.pathname == "/api/devices") {
             res.writeHead(200, {
                 'Content-Type': 'application/json'
             });
@@ -140,25 +136,11 @@ httpserver.on('upgrade', (req, sock, head) => {
 
 httpserver.listen(port, () => {
     console.log(`Server is running on port ${port}`);
+    setInterval(sendKeepalive, 300000);
 });
-
-function deleteClient(client) {
-    Object.keys(clients).forEach(function(dvc) {
-        if (clients[dvc].conn == client) {
-            console.log(`[*] Client disconnected: ${dvc}`);
-
-            clearInterval(clients[dvc].interval)
-            delete clients[dvc];
-
-            return;
-        }
-    });
-}
 
 function sendKeepalive(){
     Object.keys(clients).forEach(client => {
-        console.log("Sending keep alive");
-
         try {
             clients[client].conn.write('0');
         } catch (err) {
