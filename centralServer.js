@@ -14,7 +14,8 @@ const dvcs_commands = {
         let dvc = clients[dvc_addr].conn;
         let dvc_data = data[dvc_addr];
         Object.keys(dvc_data.params).forEach(key => {
-            //if (dvc_data.params[key] == clients[dvc_addr].params[key]) return;
+            if (JSON.stringify(dvc_data.params[key]) == JSON.stringify(clients[dvc_addr].params[key])) return;
+            console.log("NotT");
             dvc.send(JSON.stringify({[key]: dvc_data.params[key]}));
         });
         clients[dvc_addr].params = dvc_data.params;
