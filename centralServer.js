@@ -142,7 +142,7 @@ httpserver.listen(port, () => {
 function sendKeepalive(){
     Object.keys(clients).forEach(client => {
         try {
-            clients[client].conn.write('0');
+            clients[client].conn.send('0');
         } catch (err) {
             console.log("Client not receiving keep alive packet");
         }
