@@ -10,14 +10,17 @@ var clients = {};
 const dvcs_commands = {
     "/api/device/data": function(data) {
         console.log(data);
+
         let dvc_addr = Object.keys(data)[0];
         let dvc = clients[dvc_addr].conn;
         let dvc_data = data[dvc_addr];
+
         Object.keys(dvc_data.params).forEach(key => {
             if (JSON.stringify(dvc_data.params[key]) == JSON.stringify(clients[dvc_addr].params[key])) return;
             console.log("NotT");
             dvc.send(JSON.stringify({[key]: dvc_data.params[key]}));
         });
+
         clients[dvc_addr].params = dvc_data.params;
     }
 }
@@ -26,13 +29,21 @@ const wssServer = new WebSocket.Server({noServer: true});
 
 wssServer.on('connection', function connection(ws, name) {
     console.log(`[*] New connection | ${name}`);
+
     ws.on('message', msg => {
         console.log(`Messagem from ${name}\n${msg}\n`);
     });
+
     ws.on('close', function() {
         delete clients[name];
         console.log(`[*] Client disconnected | ${name}`);
     });
+
+    ws.on('pong', function() {
+       ws.isAlive = true; 
+       console.log("pong from " + name);
+    });
+
     clients[name] = {
         'conn': ws,
         'lightD': {},
@@ -116,6 +127,7 @@ var httpserver = http.createServer((req, res) => {
                 console.log('Path not found');
             }
         });
+
         req.on('end', function() {
             res.end();
         });
@@ -125,6 +137,7 @@ var httpserver = http.createServer((req, res) => {
 httpserver.on('upgrade', (req, sock, head) => {
     console.log(req.headers);
     console.log(req.url);
+
     if (req.headers['upgrade'] !== 'websocket') {
         sock.end('HTTP/1.1 400 Bad Request\r\n\r\n');
         return;
@@ -143,7 +156,7 @@ httpserver.listen(port, () => {
 function sendKeepalive(){
     Object.keys(clients).forEach(client => {
         try {
-            clients[client].conn.send('0');
+            clients[client].conn.ping();
         } catch (err) {
             console.log("Client not receiving keep alive packet");
         }
