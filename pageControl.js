@@ -6,7 +6,7 @@ var devices = {};
 var light_inter;
 var lightChart;
 const xml = new XMLHttpRequest();
-const ip = "http://nucleon.azurewebsites.net";
+const ip = "https://nucleon.azurewebsites.net";
 var options = {
     hostname: ip,
     port: 8080
