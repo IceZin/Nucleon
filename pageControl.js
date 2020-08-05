@@ -6,7 +6,7 @@ var devices = {};
 var light_inter;
 var lightChart;
 const xml = new XMLHttpRequest();
-const ip = "https://nucleon.azurewebsites.net";
+const ip = "http://localhost";
 var options = {
     hostname: ip,
     port: 8080
@@ -26,6 +26,8 @@ window.onload = function() {
             lib.testFunc();
         })
     }
+    document.getElementById('option-modal').style.visibility = "visible";
+    document.getElementById('option-modal').style.opacity = 1;
 }
 
 function setModes() {
@@ -82,7 +84,8 @@ function setSliders() {
         }
     }
     vel_slider.oninput = function() {
-        document.getElementById('vel').innerHTML = vel_slider.value;
+        if (vel_slider.value == 0) document.getElementById('vel').innerHTML = "Max";
+        else document.getElementById('vel').innerHTML = `${(1000 / vel_slider.value).toFixed(2)}Hz`;
         if (active_dvc != null) {
             let dvc_params = devices[active_dvc].params;
             dvc_params.speed = vel_slider.value;

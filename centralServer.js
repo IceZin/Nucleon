@@ -17,6 +17,7 @@ const dvcs_commands = {
 
         Object.keys(dvc_data.params).forEach(key => {
             if (JSON.stringify(dvc_data.params[key]) == JSON.stringify(clients[dvc_addr].params[key])) return;
+
             console.log("NotT");
             dvc.send(JSON.stringify({[key]: dvc_data.params[key]}));
         });
@@ -150,10 +151,10 @@ httpserver.on('upgrade', (req, sock, head) => {
 
 httpserver.listen(port, () => {
     console.log(`Server is running on port ${port}`);
-    //setInterval(sendKeepalive, 300000);
+    setInterval(sendKeepalive, 300000);
 });
 
-function sendKeepalive(){
+function sendKeepalive() {
     Object.keys(clients).forEach(client => {
         try {
             clients[client].conn.ping();

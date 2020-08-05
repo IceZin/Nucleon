@@ -2,6 +2,7 @@
     <head>
         <link rel="stylesheet" href="style.css">
         <link rel="stylesheet" href="electron_style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script type="module" src="pageControl.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
         <script src="https://kit.fontawesome.com/3e18bb4abc.js" crossorigin="anonymous"></script>
@@ -43,6 +44,7 @@
                 <div class="modals">
                     <div class="body-elements body-modal" id="option-modal">
                         <div class="option-element">
+                            <div class="div-title"><h1>Modes</h1></div>
                             <div class="modes">
                                 <div>
                                     <input id="solid" class="check_btn" type="checkbox"></input>
@@ -56,16 +58,20 @@
                                     <input id="trail" class="check_btn" type="checkbox"></input>
                                     <h1>Trail</h1>
                                 </div>
+                                <div>
+                                    <input id="rainbow" class="check_btn" type="checkbox"></input>
+                                    <h1>Rainbow</h1>
+                                </div>
                             </div>
                         </div>
                         <div class="option-element">
-                            <div class="div-title"><h1>Mode Options</h1></div>
+                            <div class="div-title"><h1>Mode Parameters</h1></div>
                             <div class="opt-div" id="tr-opt">
                                 <div class="el-title"><h1>Trail</h1></div>
                                 <div class="slider-div">
                                     <input type="range" id="vel-slider" min="0" max="100" value="0"></input>
                                     <h1>Speed:</h1>
-                                    <h1 id="vel">0</h1>
+                                    <h1 id="vel">Max</h1>
                                 </div>
                                 <div class="slider-div">
                                     <input type="range" id="len-slider" min="0" max="10" value="0"></input>
@@ -75,7 +81,7 @@
                             </div>
                         </div>
                         <div class="option-element">
-                            <div class="div-title"><h1>Device Color</h1></div>
+                            <div class="div-title"><h1>Color</h1></div>
                             <div class="slider-div">
                                 <input type="range" id="red-slider" min="0" max="255" value="0"></input>
                                 <h1>R:</h1>
@@ -98,7 +104,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="body-elements body-modal-1" id="wifi-modal">
+                    <div class="body-elements body-modal" id="wifi-modal">
                     </div>
                     <div class="body-elements body-modal" id="chart-modal">
                         <div class="chart-element">
