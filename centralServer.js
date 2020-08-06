@@ -18,7 +18,7 @@ const dvcs_commands = {
         Object.keys(dvc_data.params).forEach(key => {
             if (JSON.stringify(dvc_data.params[key]) == JSON.stringify(clients[dvc_addr].params[key])) return;
 
-            console.log("NotT");
+            console.log("[*] Sending " + JSON.stringify(dvc_data.params[key]));
             dvc.send(JSON.stringify({[key]: dvc_data.params[key]}));
         });
 
