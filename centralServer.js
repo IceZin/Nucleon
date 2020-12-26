@@ -230,8 +230,6 @@ wssServer.on('connection', function connection(ws, name) {
 var httpserver = http.createServer((req, res) => {
     console.log("New request")
 
-    res.hea
-
     let req_attr = url.parse(req.url, true);
 
     console.log("PATH: " + req_attr.path);
