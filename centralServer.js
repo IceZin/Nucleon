@@ -270,7 +270,7 @@ httpserver.on('upgrade', (req, sock, head) => {
     });
 });
 
-httpserver.listen(port, "0.0.0.0", () => {
+httpserver.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
 
