@@ -57,13 +57,6 @@ class UManager {
             })
 
             console.log(info.privateKey);
-
-            /*fs.writeFile('./data/keys.json', JSON.stringify(keys), (err) => {
-                if (err) throw err;
-                console.log("[!] New key generated");
-                console.log("[Public] " + keys.publicKey);
-                console.log("[Private] " + keys.privateKey);
-            });*/
         }
 
         this.loadKeys = () => {
