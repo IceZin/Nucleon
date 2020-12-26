@@ -121,7 +121,7 @@ const pgpaths = {
         writePg(res, {'Content-type': 'text/html'}, 'login/login.html');
     },
     '/nucleon': function(res) {
-        writePg(res, {'Content-type': 'text/css'}, 'main/cosmos.html');
+        writePg(res, {'Content-type': 'text/html'}, 'main/cosmos.html');
     },
     '/cosmos.css': function(res) {
         writePg(res, {'Content-type': 'text/css'}, 'main/cosmos.css');
