@@ -4,7 +4,7 @@
   "description": "",
   "main": "centralServer.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node centralServer.js"
   },
   "repository": {
     "type": "git",
@@ -15,9 +15,5 @@
   "bugs": {
     "url": "https://github.com/IceZin/Cosmos/issues"
   },
-  "homepage": "https://github.com/IceZin/Cosmos#readme",
-  "dependencies": {
-    "electron": "^9.0.4",
-    "ws": "^7.3.0"
-  }
+  "homepage": "https://github.com/IceZin/Cosmos#readme"
 }

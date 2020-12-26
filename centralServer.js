@@ -3,12 +3,169 @@ var fs = require('fs');
 const WebSocket = require('ws');
 const url = require('url');
 const { setInterval } = require('timers');
+const crypto = require('crypto');
 
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 8888;
+var users = {
+    "IceZin": "Batatinha123"
+}
+
+var info = {}
+
 var clients = {};
 
-const dvcs_commands = {
-    "/api/device/data": function(data) {
+class UManager {
+    constructor() {
+        let keys;
+
+        let genKeys = () => {
+            const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+                modulusLength: 512,
+                publicKeyEncoding: {
+                    type: 'spki',
+                    format: 'pem'
+                },
+                privateKeyEncoding: {
+                    type: 'pkcs8',
+                    format: 'pem',
+                    cipher: 'aes-256-cbc',
+                    passphrase: 'top secret'
+                }
+            });
+
+            console.log("[!] New key generated");
+            console.log("[Public] ");
+
+            info.publicKey = "";
+
+            publicKey.split('\n').forEach(function(el, index) {
+                if (index != 0 && index < publicKey.split('\n').length - 2) {
+                    info.publicKey += el;
+                }
+            })
+
+            console.log(info.publicKey);
+
+            console.log("[Private] ");
+
+            info.privateKey = "";
+
+            privateKey.split('\n').forEach(function(el, index) {
+                if (index != 0 && index < privateKey.split('\n').length - 2) {
+                    info.privateKey += el;
+                }
+            })
+
+            console.log(info.privateKey);
+
+            /*fs.writeFile('./data/keys.json', JSON.stringify(keys), (err) => {
+                if (err) throw err;
+                console.log("[!] New key generated");
+                console.log("[Public] " + keys.publicKey);
+                console.log("[Private] " + keys.privateKey);
+            });*/
+        }
+
+        this.loadKeys = () => {
+            fs.readFile('./data/keys.json', (err, data) => {
+                if (err) {
+                    genKeys();
+                    return;
+                };
+
+                try {
+                    keys = JSON.parse(data);
+                    if (keys.privateKey == null || keys.publicKey == null) genKeys();
+                } catch (perr) {
+                    genKeys();
+                }
+            });
+        }
+    }
+}
+
+const manager = new UManager();
+manager.loadKeys();
+
+function writePg(res, headers, path) {
+    try {
+        var stream = fs.createReadStream(path);
+    } catch (err) {
+        console.log("[!] Can't find page path");
+
+        res.statusCode = 404;
+        res.end();
+
+        return;
+    }
+
+    res.statusCode = 200;
+
+    Object.keys(headers).forEach(key => {
+        res.setHeader(key, headers[key]);
+    });
+
+    stream.pipe(res);
+}
+
+function setHeaders(res, headers) {
+    Object.keys(headers).forEach(key => {
+        console.log(key)
+        console.log(headers[key])
+        res.setHeader(key, headers[key]);
+    });
+}
+
+const pgpaths = {
+    '/': function(res) {
+        writePg(res, {'Content-type': 'text/html'}, 'login/login.html');
+    },
+    '/cosmos.css': function(res) {
+        writePg(res, {'Content-type': 'text/css'}, 'main/cosmos.css');
+    },
+    '/cosmos.js': function(res) {
+        writePg(res, {'Content-type': 'text/javascript'}, 'main/cosmos.js');
+    },
+    '/login.css': function(res) {
+        writePg(res, {'Content-type': 'text/css'}, 'login/login.css');
+    },
+    '/login.js': function(res) {
+        writePg(res, {'Content-type': 'text/javascript'}, 'login/login.js');
+    },
+    '/electron_style.css': function(res) {
+        writePg(res, {'Content-type': 'text/css'}, 'electron/electron_style.css');
+    },
+    '/ElectonJS.js': function(res) {
+        writePg(res, {'Content-type': 'text/javascript'}, 'electron/ElectronJS.js');
+    },
+    '/robots933456.txt': function(res) {
+        let headers = {
+            'Content-Type': 'text/plain',
+            'user-agent': '*',
+            'Allow': '/'
+        }
+
+        res.statusCode = 200;
+        setHeaders(res, headers);
+        res.end();
+    }
+}
+
+const gpaths = {
+    "/api/devices": function(res) {
+        res.statusCode = 200;
+        setHeaders(res, {'Content-Type': 'application/json'});
+        res.end(JSON.stringify(Object.keys(clients)));
+    },
+    "/api/devices/aps": function(res) {
+        res.statusCode = 200;
+        setHeaders(res, {'Content-Type': 'application/json'});
+        res.end(JSON.stringify({'APs': clients[req_attr.query['dvc']]['APs']}));
+    }
+}
+
+const ppaths = {
+    "/api/device/data": function(data, res) {
         console.log(data);
 
         let dvc_addr = Object.keys(data)[0];
@@ -23,6 +180,24 @@ const dvcs_commands = {
         });
 
         clients[dvc_addr].params = dvc_data.params;
+    },
+    "/lgn": function(data, res) {
+        console.log(data.user);
+        console.log(data.passwd);
+
+        if (users[data.user] == data.passwd) {
+            res.statusCode = 200;
+
+            setHeaders(res, {
+                'Content-Type': 'application/json',
+                'API_Token': info.publicKey
+            });
+
+            res.end();
+        }
+
+        res.statusCode = 404;
+        res.end();
     }
 }
 
@@ -57,75 +232,27 @@ wssServer.on('connection', function connection(ws, name) {
 });
 
 var httpserver = http.createServer((req, res) => {
+    console.log("New request")
+
+    res.hea
+
     let req_attr = url.parse(req.url, true);
 
-    if (req_attr.pathname == "/"){
-        res.writeHead(200, {
-            'Content-Type': 'text/html'
-        });
-
-        var htmlfile = fs.createReadStream('page.html');
-        htmlfile.pipe(res);
-    } else if (req_attr.pathname == "/style.css") {
-        res.writeHead(200, {
-            'Content-Type': 'text/css'
-        });
-
-        var cssfile = fs.createReadStream('style.css');
-        cssfile.pipe(res);
-    } else if (req_attr.pathname == "/electron_style.css") {
-        res.writeHead(200, {
-            'Content-Type': 'text/css'
-        });
-
-        var cssfile = fs.createReadStream('electron_style.css');
-        cssfile.pipe(res);
-    } else if (req_attr.pathname == "/pageControl.js") {
-        res.writeHead(200, {
-            'Content-Type': 'text/javascript'
-        });
-
-        var jsfile = fs.createReadStream('pageControl.js');
-        jsfile.pipe(res);
-    } else if (req_attr.pathname == "/ElectronJS.js") {
-        res.writeHead(200, {
-            'Content-Type': 'text/javascript'
-        });
-
-        var jsfile = fs.createReadStream('ElectronJS.js');
-        jsfile.pipe(res);
-    } else if (req_attr.pathname == "/robots933456.txt") {
-        res.writeHead(200, {
-            'Content-Type': 'text/plain',
-            'user-agent': '*',
-            'Allow': '/'
-        });
-        res.end();
-    }
+    console.log("PATH: " + req_attr.path);
 
     if (req.method == "GET"){
-        if (req_attr.pathname == "/api/devices") {
-            res.writeHead(200, {
-                'Content-Type': 'application/json'
-            });
-            res.end(JSON.stringify(Object.keys(clients)));
-        } else if (req_attr.pathname == "/api/devices/aps") {
-            console.log(req_attr.query);
-            res.writeHead(200, {
-                'Content-Type': 'application/json'
-            });
-            res.end(JSON.stringify({'APs': clients[req_attr.query['dvc']]['APs']}));
+        if (pgpaths[req_attr.pathname] != undefined) {
+            pgpaths[req_attr.pathname](res);
+        } else if (gpaths[req_attr.pathname] != undefined) {
+            gpaths[req_attr.pathname](res);
         }
     } else if (req.method == "POST") {
         req.on('data', function(data) {
-            var data = JSON.parse(data);
-            console.log(req.url);
-
             try {
-                dvcs_commands[req.url](data);
+                var data = JSON.parse(data);
+                ppaths[req_attr.pathname](data, res);
             } catch (err) {
-                console.log(err);
-                console.log('Path not found');
+                console.log("[!] POST path not found");
             }
         });
 
@@ -149,7 +276,7 @@ httpserver.on('upgrade', (req, sock, head) => {
     });
 });
 
-httpserver.listen(port, () => {
+httpserver.listen(port, "0.0.0.0", () => {
     console.log(`Server is running on port ${port}`);
     setInterval(sendKeepalive, 300000);
 });

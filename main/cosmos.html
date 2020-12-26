@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <script async type="text/javascript" src="cosmos.js"></script>
+        <link rel="stylesheet" href="cosmos.css">
+        <link rel="stylesheet" href="electron_style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://kit.fontawesome.com/3e18bb4abc.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" crossorigin="anonymous"></script>
+        <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    </head>
+    <body>
+        <header class="tbar">
+
+        </header>
+        <div class="cntb">
+            <div class="lnv">
+
+            </div>
+            <div class="cnt">
+                <div class="gr1">
+                    <div id="color" class="it1">
+                        <header><h1>Color</h1></header>
+
+                        <div class="box-content">
+                            <div class="el1">
+                                <input class="slider" type="range" min="0" max="255" value="0"></input>
+                                <input class="slider" type="range" min="0" max="255" value="0"></input>
+                                <input class="slider" type="range" min="0" max="255" value="0"></input>
+                            </div>
+
+                            <div class="el2">
+                                <div class="sbl1">
+                                    <div class="hex">
+                                        <h1>Hex</h1>
+                                        <input type="text" maxlength="6"></input>
+                                        <a><img></img></a>
+                                    </div>
+                                </div>
+                                <div class="sbl1">
+                                    <div class="rgb">
+                                        <h1>RGB</h1>
+                                        <input type="number" min="0" max="255" value="0"></input>
+                                        <input type="number" min="0" max="255" value="0"></input>
+                                        <input type="number" min="0" max="255" value="0"></input>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="el3">
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="it1" id="mode">
+                        <header>
+                            <h1>Mode</h1>
+                            <div id="modedp" class="dpdwn-body">
+                                <div class="dpdwn"><span>Solid</span></div>
+                                <div class="dpdwn-options">
+                                    <span>Solid</span>
+                                    <span>Fade</span>
+                                    <span>Chroma</span>
+                                    <span>Spectrum</span>
+                                </div>
+                            </div>
+                        </header>
+
+                        <div id="mode-opts" class="box-content">
+                        </div>
+                    </div>
+                    <div class="it1">
+                        <header><h1>Phases</h1></header>
+                    </div>
+                    <div class="it1">
+                        <header><h1>Phases</h1></header>
+                    </div>
+                </div>
+                <div class="spacer"></div>
+                <div class="gr2">
+                    <div class="it2">
+                        <header></header>
+                        <canvas></canvas>
+                    </div>
+                    <div class="it2">
+                        <header></header>
+                        <canvas></canvas>
+                    </div>
+                    <div class="it2">
+                        <header></header>
+                        <canvas></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
