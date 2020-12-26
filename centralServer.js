@@ -1,11 +1,11 @@
-var http = require('http');
+var http = require('https');
 var fs = require('fs');
 const WebSocket = require('ws');
 const url = require('url');
 const { setInterval } = require('timers');
 const crypto = require('crypto');
 
-const port = process.env.PORT || 8888;
+const port = process.env.PORT || 443;
 var users = {
     "IceZin": "Batatinha123"
 }
