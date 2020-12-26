@@ -239,6 +239,8 @@ var httpserver = http.createServer((req, res) => {
     if (req.method == "GET"){
         if (pgpaths[req_attr.pathname] != undefined) {
             pgpaths[req_attr.pathname](res);
+            res.statusCode = 200;
+            res.end();
         } else if (gpaths[req_attr.pathname] != undefined) {
             gpaths[req_attr.pathname](res);
         }
