@@ -272,7 +272,6 @@ httpserver.on('upgrade', (req, sock, head) => {
 
 httpserver.listen(port, "0.0.0.0", () => {
     console.log(`Server is running on port ${port}`);
-    setInterval(sendKeepalive, 300000);
 });
 
 function sendKeepalive() {
