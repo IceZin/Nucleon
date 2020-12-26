@@ -228,7 +228,7 @@ wssServer.on('connection', function connection(ws, name) {
 });
 
 var httpserver = http.createServer((req, res) => {
-    console.log("New request")
+    console.log("New request");
 
     let req_attr = url.parse(req.url, true);
 
@@ -237,8 +237,6 @@ var httpserver = http.createServer((req, res) => {
     if (req.method == "GET"){
         if (pgpaths[req_attr.pathname] != undefined) {
             pgpaths[req_attr.pathname](res);
-            res.statusCode = 200;
-            res.end();
         } else if (gpaths[req_attr.pathname] != undefined) {
             gpaths[req_attr.pathname](res);
         }
