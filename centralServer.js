@@ -1,4 +1,4 @@
-var http = require('https');
+var http = require('http');
 var fs = require('fs');
 const WebSocket = require('ws');
 const url = require('url');
