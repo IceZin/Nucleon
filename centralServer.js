@@ -113,6 +113,9 @@ const pgpaths = {
     '/': function(res) {
         writePg(res, {'Content-type': 'text/html'}, 'login/login.html');
     },
+    '/cosmos': function(res) {
+        writePg(res, {'Content-type': 'text/html'}, 'main/cosmos.html');
+    },
     '/cosmos.css': function(res) {
         writePg(res, {'Content-type': 'text/css'}, 'main/cosmos.css');
     },
