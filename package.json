@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "centralServer.js",
+  "dependencies": {
+    "ws": "^7.4.1"
+  },
+  "devDependencies": {},
   "scripts": {
     "start": "node centralServer.js"
   },
@@ -15,8 +19,5 @@
   "bugs": {
     "url": "https://github.com/IceZin/Cosmos/issues"
   },
-  "homepage": "https://github.com/IceZin/Cosmos#readme",
-  "dependencies": {
-    "ws": "^7.4.1"
-  }
+  "homepage": "https://github.com/IceZin/Cosmos#readme"
 }
