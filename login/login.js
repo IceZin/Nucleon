@@ -152,6 +152,9 @@ window.onload = function() {
             passwd: pss
         }, function(data, status, headers) {
             if (status == 200) {
+                Object.values(headers).forEach(head => {
+                    console.log(head);
+                });
                 document.cookie = `API_Token=${headers["API_Token"]};`;
                 window.location.pathname = "/cosmos";
             }
