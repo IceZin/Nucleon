@@ -20,16 +20,6 @@ function gebat(tpv) {
     return document.querySelectorAll(`[tp="${tpv}"]`);
 }
 
-function req(method, url, callback) {
-    xml.open(method, url);
-    xml.send();
-    xml.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            return callback(JSON.parse(this.responseText));
-        }
-    }
-}
-
 class Manager {
     constructor() {
         
@@ -296,6 +286,71 @@ class ModeManager {
         })
     }
 }
+
+function req(info, callback) {
+    xml.open(info.method, `${ip}/${info.url}`);
+    xml.setRequestHeader('Content-Type', info.type);
+    xml.send(info.data);
+
+    xml.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            let headers = this.getAllResponseHeaders();
+            let arr = headers.trim().split(/[\r\n]+/);
+
+            let headerMap = {};
+            arr.forEach(function (line) {
+                let parts = line.split(': ');
+                let header = parts.shift();
+                let value = parts.join(': ');
+                headerMap[header] = value;
+            });
+
+            callback(this.responseText, this.status, headerMap);
+        }
+    }
+}
+
+function sendJSON(url, json, callback) {
+    xml.open("POST", `${ip}/${url}`);
+    xml.setRequestHeader('Content-Type', 'text/plain');
+    xml.send(JSON.stringify(json));
+
+    xml.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            let headers = this.getAllResponseHeaders();
+            let arr = headers.trim().split(/[\r\n]+/);
+
+            let headerMap = {};
+            arr.forEach(function (line) {
+                let parts = line.split(': ');
+                let header = parts.shift();
+                let value = parts.join(': ');
+                headerMap[header] = value;
+            });
+
+            callback(this.responseText, this.status, headerMap);
+        }
+    }
+}
+
+var cookies = document.cookie.split(';')
+var arr = {}
+
+cookies.forEach(cookie => {
+    let vals = cookie.split('=');
+    console.log(vals[0]);
+    console.log(vals[1]);
+    arr[vals[0]] = vals[1];
+});
+
+req({
+    method: "GET",
+    url: "check",
+    type: "text/plain",
+    data: arr["API_Token"]
+}, function (resText, status, headers) {
+
+})
 
 const manager = new Manager();
 

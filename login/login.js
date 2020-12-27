@@ -104,9 +104,6 @@ function sendJSON(url, json, callback) {
                 let header = parts.shift();
                 let value = parts.join(': ');
                 headerMap[header] = value;
-
-                console.log(header);
-                console.log(value);
             });
 
             callback(this.responseText, this.status, headerMap);
@@ -154,9 +151,10 @@ window.onload = function() {
             user: usrnm,
             passwd: pss
         }, function(data, status, headers) {
-            console.log(data);
-            console.log(status);
-            console.log(headers["API_Token"]);
+            if (status == 200) {
+                document.cookie = `API_Token=${headers["API_Token"]};`;
+                window.location.pathname = "/cosmos";
+            }
         });
     }
 
