@@ -1,11 +1,11 @@
-var http = require('https');
+var http = require('http');
 var fs = require('fs');
 const WebSocket = require('ws');
 const url = require('url');
 const { setInterval } = require('timers');
 const crypto = require('crypto');
 
-const port = process.env.PORT || 443;
+const port = process.env.PORT || 8080;
 var users = {
     "IceZin": "Batatinha123"
 }
@@ -16,8 +16,6 @@ var clients = {};
 
 class UManager {
     constructor() {
-        let keys;
-
         let genKeys = () => {
             const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
                 modulusLength: 512,
@@ -60,19 +58,7 @@ class UManager {
         }
 
         this.loadKeys = () => {
-            fs.readFile('./data/keys.json', (err, data) => {
-                if (err) {
-                    genKeys();
-                    return;
-                };
-
-                try {
-                    keys = JSON.parse(data);
-                    if (keys.privateKey == null || keys.publicKey == null) genKeys();
-                } catch (perr) {
-                    genKeys();
-                }
-            });
+            genKeys();
         }
     }
 }
@@ -111,28 +97,28 @@ function setHeaders(res, headers) {
 
 const pgpaths = {
     '/': function(res) {
-        writePg(res, {'Content-type': 'text/html'}, 'login/login.html');
+        writePg(res, {'Content-type': 'text/html'}, './login/login.html');
     },
-    /*'/cosmos': function(res) {
-        writePg(res, {'Content-type': 'text/html'}, 'main/cosmos.html');
-    },*/
+    '/cosmos': function(res) {
+        writePg(res, {'Content-type': 'text/html'}, './main/cosmos.html');
+    },
     '/cosmos.css': function(res) {
-        writePg(res, {'Content-type': 'text/css'}, 'main/cosmos.css');
+        writePg(res, {'Content-type': 'text/css'}, './main/cosmos.css');
     },
     '/cosmos.js': function(res) {
-        writePg(res, {'Content-type': 'text/javascript'}, 'main/cosmos.js');
+        writePg(res, {'Content-type': 'text/javascript'}, './main/cosmos.js');
     },
     '/login.css': function(res) {
-        writePg(res, {'Content-type': 'text/css'}, 'login/login.css');
+        writePg(res, {'Content-type': 'text/css'}, './login/login.css');
     },
     '/login.js': function(res) {
-        writePg(res, {'Content-type': 'text/javascript'}, 'login/login.js');
+        writePg(res, {'Content-type': 'text/javascript'}, './login/login.js');
     },
     '/electron_style.css': function(res) {
-        writePg(res, {'Content-type': 'text/css'}, 'electron/electron_style.css');
+        writePg(res, {'Content-type': 'text/css'}, './electron/electron_style.css');
     },
     '/ElectonJS.js': function(res) {
-        writePg(res, {'Content-type': 'text/javascript'}, 'electron/ElectronJS.js');
+        writePg(res, {'Content-type': 'text/javascript'}, './electron/ElectronJS.js');
     },
     '/robots933456.txt': function(res) {
         let headers = {
@@ -176,6 +162,8 @@ const ppaths = {
         });
 
         clients[dvc_addr].params = dvc_data.params;
+
+        res.end();
     },
     "/lgn": function(data, res) {
         console.log(data.user);
@@ -190,6 +178,8 @@ const ppaths = {
             });
 
             res.end();
+
+            return;
         }
 
         res.statusCode = 404;
@@ -228,11 +218,7 @@ wssServer.on('connection', function connection(ws, name) {
 });
 
 var httpserver = http.createServer((req, res) => {
-    console.log("New request");
-
     let req_attr = url.parse(req.url, true);
-
-    console.log("PATH: " + req_attr.path);
 
     if (req.method == "GET"){
         if (pgpaths[req_attr.pathname] != undefined) {
@@ -248,10 +234,6 @@ var httpserver = http.createServer((req, res) => {
             } catch (err) {
                 console.log("[!] POST path not found");
             }
-        });
-
-        req.on('end', function() {
-            res.end();
         });
     }
 });
