@@ -1,5 +1,6 @@
 const xml = new XMLHttpRequest();
 const updateEvent = new Event("update");
+const ip = "https://nucleon.azurewebsites.net";
 
 function gbi(id) {
     return document.getElementById(id);

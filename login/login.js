@@ -1,5 +1,5 @@
 const xml = new XMLHttpRequest();
-const ip = "http://192.168.0.10:8888"
+const ip = "https://nucleon.azurewebsites.net";
 
 function gbi(id) {
     return document.getElementById(id);
