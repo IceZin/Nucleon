@@ -7,7 +7,7 @@ const crypto = require('crypto');
 
 const port = process.env.PORT || 8080;
 var users = {
-    "IceZin": "Batatinha123"
+    "IceZin": "123"
 }
 
 var info = {}
@@ -65,6 +65,9 @@ class UManager {
 
 const manager = new UManager();
 manager.loadKeys();
+setInterval(() => {
+    manager.loadKeys();
+}, 60000 * 10);
 
 function writePg(res, headers, path) {
     try {
@@ -89,8 +92,6 @@ function writePg(res, headers, path) {
 
 function setHeaders(res, headers) {
     Object.keys(headers).forEach(key => {
-        console.log(key)
-        console.log(headers[key])
         res.setHeader(key, headers[key]);
     });
 }
@@ -134,12 +135,21 @@ const pgpaths = {
 }
 
 const gpaths = {
-    "/api/devices": function(res) {
+    "/check": function(res, headers) {
+        if (headers["api_token"] == info.publicKey) {
+            res.statusCode = 200;
+            res.end();
+        } else {
+            res.statusCode = 404;
+            res.end();
+        }
+    },
+    "/api/devices": function(res, headers) {
         res.statusCode = 200;
         setHeaders(res, {'Content-Type': 'application/json'});
         res.end(JSON.stringify(Object.keys(clients)));
     },
-    "/api/devices/aps": function(res) {
+    "/api/devices/aps": function(res, headers) {
         res.statusCode = 200;
         setHeaders(res, {'Content-Type': 'application/json'});
         res.end(JSON.stringify({'APs': clients[req_attr.query['dvc']]['APs']}));
@@ -174,7 +184,7 @@ const ppaths = {
 
             setHeaders(res, {
                 'Content-Type': 'application/json',
-                'API_Token': info.publicKey
+                'api_token': info.publicKey
             });
 
             res.end();
@@ -224,7 +234,7 @@ var httpserver = http.createServer((req, res) => {
         if (pgpaths[req_attr.pathname] != undefined) {
             pgpaths[req_attr.pathname](res);
         } else if (gpaths[req_attr.pathname] != undefined) {
-            gpaths[req_attr.pathname](res);
+            gpaths[req_attr.pathname](res, req.headers);
         }
     } else if (req.method == "POST") {
         req.on('data', function(data) {

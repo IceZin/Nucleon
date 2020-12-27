@@ -1,5 +1,6 @@
 const xml = new XMLHttpRequest();
 const ip = "https://nucleon.azurewebsites.net";
+//const ip = "http://localhost:8080";
 
 function gbi(id) {
     return document.getElementById(id);
@@ -88,6 +89,34 @@ function updateParticles(particles, hue) {
     }
 }
 
+function req(info, callback) {
+    xml.open(info.method, `${ip}/${info.url}`);
+
+    Object.keys(info.headers).forEach(header => {
+        xml.setRequestHeader(header, info.headers[header]);
+    });
+
+    if (info.data) xml.send(info.data);
+    else xml.send();
+
+    xml.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            let headers = this.getAllResponseHeaders();
+            let arr = headers.trim().split(/[\r\n]+/);
+
+            let headerMap = {};
+            arr.forEach(function (line) {
+                let parts = line.split(': ');
+                let header = parts.shift();
+                let value = parts.join(': ');
+                headerMap[header] = value;
+            });
+
+            callback(this.responseText, this.status, headerMap);
+        }
+    }
+}
+
 function sendJSON(url, json, callback) {
     xml.open("POST", `${ip}/${url}`);
     xml.setRequestHeader('Content-Type', 'text/plain');
@@ -109,6 +138,35 @@ function sendJSON(url, json, callback) {
             callback(this.responseText, this.status, headerMap);
         }
     }
+}
+
+var cookies = document.cookie.split(';')
+var arr = {}
+
+cookies.forEach(cookie => {
+    while (cookie.charAt(0) == ' ') {
+        cookie = cookie.substring(1);
+    }
+
+    let ck = cookie.substring(0, cookie.indexOf('='));
+    let ck_val = cookie.substring(cookie.indexOf('=') + 1, cookie.length);
+
+    arr[ck] = ck_val;
+});
+
+if (arr['api_token']) {
+    req({
+        method: "GET",
+        url: "check",
+        headers: {
+            'Content-Type': 'text/plain',
+            'api_token': arr['api_token']
+        }
+    }, function (resText, status, headers) {
+        if (status == 200) {
+            window.location.pathname = "/cosmos";
+        }
+    })
 }
 
 window.onload = function() {
@@ -152,10 +210,7 @@ window.onload = function() {
             passwd: pss
         }, function(data, status, headers) {
             if (status == 200) {
-                Object.values(headers).forEach(head => {
-                    console.log(head);
-                });
-                document.cookie = `API_Token=${headers["API_Token"]};`;
+                document.cookie = `api_token=${headers["api_token"]};`;
                 window.location.pathname = "/cosmos";
             }
         });

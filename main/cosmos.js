@@ -1,6 +1,7 @@
 const xml = new XMLHttpRequest();
 const updateEvent = new Event("update");
 const ip = "https://nucleon.azurewebsites.net";
+//const ip = "http://localhost:8080";
 
 function gbi(id) {
     return document.getElementById(id);
@@ -290,8 +291,13 @@ class ModeManager {
 
 function req(info, callback) {
     xml.open(info.method, `${ip}/${info.url}`);
-    xml.setRequestHeader('Content-Type', info.type);
-    xml.send(info.data);
+
+    Object.keys(info.headers).forEach(header => {
+        xml.setRequestHeader(header, info.headers[header]);
+    });
+
+    if (info.data) xml.send(info.data);
+    else xml.send();
 
     xml.onreadystatechange = function () {
         if (this.readyState == 4) {
@@ -338,19 +344,27 @@ var cookies = document.cookie.split(';')
 var arr = {}
 
 cookies.forEach(cookie => {
-    let vals = cookie.split('=');
-    console.log(vals[0]);
-    console.log(vals[1]);
-    arr[vals[0]] = vals[1];
+    while (cookie.charAt(0) == ' ') {
+        cookie = cookie.substring(1);
+    }
+
+    let ck = cookie.substring(0, cookie.indexOf('='));
+    let ck_val = cookie.substring(cookie.indexOf('=') + 1, cookie.length);
+    
+    arr[ck] = ck_val;
 });
 
 req({
     method: "GET",
     url: "check",
-    type: "text/plain",
-    data: arr["API_Token"]
+    headers: {
+        'Content-Type': 'text/plain',
+        'api_token': arr['api_token']
+    }
 }, function (resText, status, headers) {
-
+    if (status == 404) {
+        window.location.pathname = "/";
+    }
 })
 
 const manager = new Manager();
