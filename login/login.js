@@ -22,8 +22,8 @@ class Particle {
         this.draw = () => {
             ctx.beginPath();
             ctx.arc(x, y, this.a_sz, 0, Math.PI * 2, false);
-            ctx.fillStyle = "#91a7ff";
-            ctx.shadowColor = "#91a7ff";
+            ctx.fillStyle = "#32ca43";
+            ctx.shadowColor = "#32ca43";
             ctx.shadowBlur = 10;
             ctx.fill();
 
@@ -45,7 +45,7 @@ function connectParticles(particle, particles) {
         let distance = Math.sqrt((particle.x - particles[i].x) ** 2 + (particle.y - particles[i].y) ** 2)
 
         if (distance <= 140) {
-            ctx.strokeStyle = "#7789d3";
+            ctx.strokeStyle = "#289E35";
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(particle.x, particle.y);
