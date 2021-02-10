@@ -1,6 +1,5 @@
 const xml = new XMLHttpRequest();
-const ip = "https://nucleon.azurewebsites.net";
-//const ip = "http://localhost:8080";
+const ip = window.location.origin
 
 function gbi(id) {
     return document.getElementById(id);
@@ -140,6 +139,22 @@ function sendJSON(url, json, callback) {
     }
 }
 
+function detectMobile() {
+    let devices = [
+        /Android/i,
+        /webOS/i,
+        /iPhone/i,
+        /iPad/i,
+        /iPod/i,
+        /BlackBerry/i,
+        /Windows Phone/i
+    ];
+
+    return devices.some((device) => {
+        return navigator.userAgent.match(device);
+    });
+}
+
 var cookies = document.cookie.split(';')
 var arr = {}
 
@@ -160,7 +175,8 @@ if (arr['api_token']) {
         url: "check",
         headers: {
             'Content-Type': 'text/plain',
-            'api_token': arr['api_token']
+            'api_token': arr['api_token'],
+            'user-agent': navigator.userAgent
         }
     }, function (resText, status, headers) {
         if (status == 200) {
@@ -171,9 +187,17 @@ if (arr['api_token']) {
 
 window.onload = function() {
     let canvas = document.getElementById('bg');
+    let fps = 120;
+
+    if (detectMobile()) {
+        document.getElementsByClassName('tbar')[0].style.display = 'none';
+        fps = 10;
+        canvas.getContext('2d').canvas.height = window.innerHeight;
+    } else {
+        canvas.getContext('2d').canvas.height = window.innerHeight - 100;
+    }
 
     canvas.getContext('2d').canvas.width = window.innerWidth;
-    canvas.getContext('2d').canvas.height = window.innerHeight - 100;
 
     let max_w = parseInt(canvas.width);
     let max_h = parseInt(canvas.height);
@@ -199,7 +223,7 @@ window.onload = function() {
         updateParticles(particles, hue)
         hue++;
         if (hue == 2 * particles.length) hue = 0;
-    }, 1000 / 120)
+    }, 1000 / fps)
 
     document.getElementById("login").onclick = function() {
         let usrnm = document.getElementById('username').value;

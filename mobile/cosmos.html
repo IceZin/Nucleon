@@ -1,6 +1,7 @@
 <html>
     <head>
-        <script async type="text/javascript" src="cosmos.js"></script>
+        <script async defer type="text/javascript" src="cosmos.js"></script>
+        <script async defer type="text/javascript" src="mb.js"></script>
         <link rel="stylesheet" href="cosmos.css">
         <link rel="stylesheet" href="electron_style.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,28 +11,31 @@
         <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
     </head>
     <body>
-        <header class="tbar">
-
-        </header>
-        <div class="cntb">
-            <div class="lnv">
-                <div class="item">
-                    <div class="title"><h1>DEVICES</h1></div>
-                    <div id="devices"></div>
-                </div>
-                <div class="item">
-                    <div class="title"><h1>OPTIONS</h1></div>
-                    <div class="opts">
-                        <div id="set">
-                            <i class="fas fa-upload"></i>
-                            <h1>Set</h1>
-                        </div>
+        <div class="lnv">
+            <div class="item">
+                <div class="title"><h1>DEVICES</h1></div>
+                <div id="devices"></div>
+            </div>
+            <div class="item">
+                <div class="title"><h1>OPTIONS</h1></div>
+                <div class="opts">
+                    <div id="set">
+                        <i class="fas fa-upload"></i>
+                        <h1>Set</h1>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="lnv-btn">
+            <i class="fas fa-bars menu-open"></i>
+            <i class="fas fa-times menu-close"></i>
+        </div>
+
+        <div class="cntb">
             <div class="cnt">
                 <div class="gr1">
-                    <div id="color-box" class="it1">
+                    <div id="color" class="it1">
                         <header><h1>Color</h1></header>
 
                         <div class="box-content">
@@ -78,40 +82,13 @@
                         </div>
                     </div>
                     <div class="it1">
-                        <header><h1>Mode Options</h1></header>
+                        <header><h1>Phases</h1></header>
                     </div>
-                    <div class="it1" id="phasebox">
-                        <header>
-                            <h1>Phases</h1>
-                            <div class="btns">
-                                <div class="btn" id="add">
-                                    <h1>ADD</h1>
-                                </div>
-                                <div class="btn" id="remove">
-                                    <h1>DEL</h1>
-                                </div>
-                            </div>
-                        </header>
-                        
-                        <div class="phases">
-                        </div>
+                    <div class="it1">
+                        <header><h1>Phases</h1></header>
                     </div>
                 </div>
                 <div class="spacer"></div>
-                <div class="gr2">
-                    <div class="it2">
-                        <header></header>
-                        <canvas></canvas>
-                    </div>
-                    <div class="it2">
-                        <header></header>
-                        <canvas></canvas>
-                    </div>
-                    <div class="it2">
-                        <header></header>
-                        <canvas></canvas>
-                    </div>
-                </div>
             </div>
         </div>
     </body>
