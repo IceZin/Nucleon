@@ -2,7 +2,7 @@ const ip = location.host;
 
 class GraphManager {
     constructor() {
-        const socket = new WebSocket(`ws://${ip}`, "GrWebClient");
+        const socket = new WebSocket(`wss://${ip}`, "GrWebClient");
 
         var charts = {};
 
