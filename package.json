@@ -2,9 +2,8 @@
   "name": "nucleon",
   "version": "2.0.0",
   "description": "",
-  "main": "./server/main.js",
   "scripts": {
-    "test": "node ./server/main.js"
+    "start": "node ./server/main.js"
   },
   "repository": {
     "type": "git",
