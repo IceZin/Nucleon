@@ -14,5 +14,6 @@
   "bugs": {
     "url": "https://github.com/IceZin/Nucleon/issues"
   },
-  "homepage": "https://github.com/IceZin/Nucleon#readme"
+  "homepage": "https://github.com/IceZin/Nucleon#readme",
+  "dependencies": {}
 }
