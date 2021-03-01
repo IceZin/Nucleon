@@ -1,0 +1,147 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+h1, li, a, button, input, span {
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    color: #fff;
+}
+
+body {
+    background-color: #111111;
+    /*background: linear-gradient(#0f1015, #202128, #0f1015);*/
+
+    overflow: hidden;
+}
+
+.tbar {
+    background-color: #1a1a1a;
+
+    height: 100px;
+    width: 100%;
+
+    box-shadow: 2px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.lgn {
+    width: 100%;
+    height: calc(100% - 100px);
+
+    position: absolute;
+
+    display: flex;
+
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.lgn .form {
+    width: 300px;
+    height: 440px;
+
+    background-color: #1a1a1a;
+
+    border-radius: 5px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+
+    position: relative;
+
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.45);
+}
+
+.form img {
+    width: 200px;
+    height: 200px;
+
+    margin-top: 16px;
+}
+
+.form input {
+    width: 80%;
+    height: 30px;
+
+    border: 0;
+    border-bottom: 2px solid #3ba4d0;
+
+    margin-top: 30px;
+
+    outline: 0;
+
+    font-size: 14px;
+
+    color: #3ba4d0;
+    
+    background: transparent;
+
+    text-align: center;
+
+    transition: border-color 0.2s;
+}
+
+.form .btns {
+    display: flex;
+
+    width: 100%;
+
+    justify-content: space-evenly;
+
+    position: absolute;
+
+    bottom: 20px;
+}
+
+.btns .btn {
+    width: 100px;
+    height: 30px;
+
+    background-color: transparent;
+
+    background-color: #161616;
+    border: 2px solid #3ba4d0;
+
+    cursor: pointer;
+
+    position: relative;
+
+    display: flex;
+
+    top: 0;
+
+    justify-content: center;
+    align-items: center;
+
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.45);
+
+    transition: background-color 0.2s, top 0.1s, box-shadow 0.1s;
+}
+
+.btn h1 {
+    user-select: none;
+    color: #3ba4d0;
+}
+
+.btns .btn:hover {
+    background-color: #77c3e3;
+}
+
+.btns .btn:hover h1 {
+    color: #000;
+}
+
+.btns .btn:active {
+    top: 4px;
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.45);
+}
+
+#bg {
+    position: absolute;
+    overflow: hidden;
+}
