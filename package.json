@@ -1,7 +1,8 @@
 {
-  "name": "nucleon",
-  "version": "2.0.0",
+  "name": "Nucleon",
+  "version": "1.0.0",
   "description": "",
+  "main": "index.js",
   "scripts": {
     "start": "node ./server/main.js"
   },
@@ -9,11 +10,11 @@
     "type": "git",
     "url": "git+https://github.com/IceZin/Nucleon.git"
   },
+  "keywords": [],
   "author": "IceZin",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/IceZin/Nucleon/issues"
   },
-  "homepage": "https://github.com/IceZin/Nucleon#readme",
-  "dependencies": {}
+  "homepage": "https://github.com/IceZin/Nucleon#readme"
 }

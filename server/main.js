@@ -123,7 +123,7 @@ function checkMobile(agent) {
 
 const pgpaths = {
     '/': function(req, res) {
-        writePg(res, {'Content-type': 'text/html'}, '../page/login/login.html');
+        writePg(res, {'Content-type': 'text/html'}, 'page/login/login.html');
     },
     '/cosmos': function(req, res) {
         let path = '';
@@ -131,7 +131,7 @@ const pgpaths = {
         if (checkMobile(req.headers["user-agent"])) path = "mobile";
         else path = "main";
 
-        writePg(res, {'Content-type': 'text/html'}, `../page/main/cosmos.html`);
+        writePg(res, {'Content-type': 'text/html'}, `page/main/cosmos.html`);
     },
     '/cosmos.css': function(req, res) {
         let path = ''
@@ -139,16 +139,16 @@ const pgpaths = {
         if (checkMobile(req.headers["user-agent"])) path = "mobile";
         else path = "main";
 
-        writePg(res, {'Content-type': 'text/css'}, `../page/main/cosmos.css`);
+        writePg(res, {'Content-type': 'text/css'}, `page/main/cosmos.css`);
     },
     '/login.css': function(req, res) {
-        writePg(res, {'Content-type': 'text/css'}, '../page/login/login.css');
+        writePg(res, {'Content-type': 'text/css'}, 'page/login/login.css');
     },
     '/electron_style.css': function(req, res) {
-        writePg(res, {'Content-type': 'text/css'}, '../electron/electron_style.css');
+        writePg(res, {'Content-type': 'text/css'}, 'electron/electron_style.css');
     },
     '/ElectonJS.js': function(req, res) {
-        writePg(res, {'Content-type': 'text/javascript'}, '../electron/ElectronJS.js');
+        writePg(res, {'Content-type': 'text/javascript'}, 'electron/ElectronJS.js');
     },
     '/robots933456.txt': function(req, res) {
         let headers = {
@@ -269,9 +269,9 @@ var httpserver = http.createServer((req, res) => {
 
     if (req.method == "GET") {
         if (req_attr.pathname.includes(".png")) {
-            writePg(res, {'Content-type': 'image/png'}, '../page/icons' + req_attr.pathname);
+            writePg(res, {'Content-type': 'image/png'}, 'page/icons' + req_attr.pathname);
         } else if (req_attr.pathname.includes(".js")) {
-            writePg(res, {'Content-type': 'text/javascript'}, '../page/scripts' + req_attr.pathname);
+            writePg(res, {'Content-type': 'text/javascript'}, 'page/scripts' + req_attr.pathname);
         } else {
             if (pgpaths[req_attr.pathname] != undefined) {
                 pgpaths[req_attr.pathname](req, res);
