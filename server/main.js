@@ -348,7 +348,7 @@ const upgradeHandlers = {
 
             user.registerDevice(device.addr, device);
 
-            sock.write(headers.concat('\r\n').join('\r\n'))
+            sock.write(headers.concat('\r\n').join('\r\n'));
 
             device.on('data', function (data) {
                 if (data[0] == 0) return;
