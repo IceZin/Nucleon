@@ -339,9 +339,16 @@ const upgradeHandlers = {
         if (user) {
             let device = new Device(req, sock, cookies);
 
+            let headers = [
+                "HTTP/1.1 101 Switching Protocols",
+                "Upgrade: websocket",
+                "Connection: Upgrade",
+                "Sec-WebSocket-Protocol: Device"
+            ]
+
             user.registerDevice(device.addr, device);
 
-            sock.write("HTTP/1.1 101 Switching Protocols\r\n")
+            sock.write(headers.concat('\r\n').join('\r\n'))
 
             device.on('data', function (data) {
                 if (data[0] == 0) return;
