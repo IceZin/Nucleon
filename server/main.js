@@ -378,7 +378,7 @@ httpserver.on('upgrade', (req, sock, head) => {
     let cookies = getCookies(req.headers.cookie);
     console.log(cookies);
 
-    upgradeHandlers[req.headers["sec-websocket-protocol"]](req, sock, head, cookies);
+    //upgradeHandlers[req.headers["sec-websocket-protocol"]](req, sock, head, cookies);
 });
 
 httpserver.listen(port, () => {
