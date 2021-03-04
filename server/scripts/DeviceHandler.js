@@ -21,7 +21,7 @@ class Device {
             } catch (error) {}
         }
 
-        this.ping_interval = setInterval(this.ping, 1000);
+        //this.ping_interval = setInterval(this.ping, 1000);
 
         this.dataHandler = {
             1: function(data) {
