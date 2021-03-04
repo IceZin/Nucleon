@@ -1,4 +1,4 @@
-var http = require('https');
+var http = require('http');
 var fs = require('fs');
 const url = require('url');
 const { setInterval } = require('timers');
@@ -367,7 +367,7 @@ const upgradeHandlers = {
     }
 }
 
-/*httpserver.on('upgrade', (req, sock, head) => {
+httpserver.on('upgrade', (req, sock, head) => {
     if (req.headers['upgrade'] !== 'websocket') {
         sock.end('HTTP/1.1 400 Bad Request\r\n\r\n');
         return;
@@ -379,7 +379,7 @@ const upgradeHandlers = {
     console.log(cookies);
 
     upgradeHandlers[req.headers["sec-websocket-protocol"]](req, sock, head, cookies);
-});*/
+});
 
 httpserver.listen(port, () => {
     console.log(`Server is running on port ${port}`);
