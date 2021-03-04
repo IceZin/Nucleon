@@ -183,12 +183,14 @@ const gpaths = {
             let dvcs = []
 
             Object.values(user.getDevices()).forEach(dvc => {
-                dvcs.push({
-                    addr: dvc.addr,
-                    name: dvc.name
-                })
+                if (dvc != null) {
+                    dvcs.push({
+                        addr: dvc.addr,
+                        name: dvc.name
+                    })
 
-                console.log(dvcs);
+                    console.log(dvcs);
+                }
             })
 
             res.end(JSON.stringify(dvcs));
