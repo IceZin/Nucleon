@@ -1,12 +1,16 @@
 const WsManager = require('./WsManager.js');
 
 class User extends WsManager {
-    constructor() {
+    constructor(username, password, token) {
         super(constructor)
 
         let active_dvc = null;
         let clientSyncThreads = {};
         let devices = {};
+
+        this.name = username;
+        this.password = password;
+        this.token = token;
 
         this.registerSyncThread = function(id, thread) {
             if (clientSyncThreads[id] == null) {

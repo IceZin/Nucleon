@@ -364,6 +364,7 @@ const upgradeHandlers = {
 
             device.on('end', function () {
                 user.unregisterDevice(device.addr);
+                console.log(`Removing device ${device.addr} from user ${user.name}`)
             })
         }
     }
