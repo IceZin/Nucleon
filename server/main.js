@@ -335,6 +335,7 @@ const upgradeHandlers = {
     "Device": function(req, sock, head, cookies) {
         let owner = cookies.owner;
         let user = tokens[owner];
+        let key = req.headers["sec-websocket-key"];
 
         if (user) {
             let device = new Device(req, sock, cookies);
