@@ -329,9 +329,21 @@ const upgradeHandlers = {
 
             sock.write(headers.concat('\r\n').join('\r\n'))
 
+            let p_i = setInterval(() => {
+                sock.write(Buffer.from([0x0]))
+            }, 3000);
+
             sock.on('data', function(data) {
                 console.log(data);
             });
+
+            sock.on('end', function() {
+                clearInterval(p_i)
+            })
+
+            sock.on('end', function() {
+                clearInterval(p_i)
+            })
         }
     },
     "Device": function(req, sock, head, cookies) {

@@ -7,7 +7,9 @@ class GraphManager {
         var charts = {};
 
         socket.onmessage = function(msg) {
-            try {
+            if (msg[0] == 0) socket.send(Buffer.from([0x0]))
+
+            /*try {
                 msg = JSON.parse(msg);
 
                 charts[msg.chart].dps.push(msg.val);
@@ -19,7 +21,7 @@ class GraphManager {
                 charts[msg.chart].chart.render();
             } catch (error) {
                 
-            }
+            }*/
         }
 
         this.registerChart = function(info) {
