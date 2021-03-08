@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const User = require('./scripts/UsersHandler.js');
 const Device = require('./scripts/DeviceHandler.js');
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 80;
 var users = {
     "IceZin": {
         pass: "123",
@@ -334,7 +334,7 @@ const upgradeHandlers = {
             }, 3000);
 
             sock.on('data', function(data) {
-                console.log(data);
+
             });
 
             sock.on('end', function() {
@@ -367,14 +367,8 @@ const upgradeHandlers = {
             sock.write(headers.concat('\r\n').join('\r\n'));
 
             device.on('data', function (data) {
-                if (data[0] == 0) return;
-                console.log("[*] New data from " + device.addr)
-                console.log(data)
-            });
 
-            device.on('error', function () {
-                user.unregisterDevice(device.addr);
-            })
+            });
 
             device.on('end', function () {
                 user.unregisterDevice(device.addr);
