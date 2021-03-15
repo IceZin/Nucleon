@@ -23,6 +23,10 @@
                 <div class="item">
                     <div class="title"><h1>OPTIONS</h1></div>
                     <div class="opts">
+                        <div id="profiles">
+                            <i class="fas fa-upload"></i>
+                            <h1>Profiles</h1>
+                        </div>
                         <div id="set">
                             <i class="fas fa-upload"></i>
                             <h1>Set</h1>
@@ -45,18 +49,28 @@
 
                             <div class="color-info">
                                 <div class="sbl1">
-                                    <div class="hex">
+                                    <div class="hex mid">
                                         <h1>Hex</h1>
                                         <input type="text" maxlength="6"></input>
                                         <a><img></img></a>
                                     </div>
                                 </div>
                                 <div class="sbl1">
-                                    <div class="rgb">
+                                    <div class="rgb mid">
                                         <h1>RGB</h1>
                                         <input type="number" min="0" max="255" value="0"></input>
                                         <input type="number" min="0" max="255" value="0"></input>
                                         <input type="number" min="0" max="255" value="0"></input>
+                                    </div>
+                                </div>
+                                <div class="sbl1">
+                                    <div class="clr-type mid">
+                                        <h1>Type</h1>
+                                        <div id="clr-type" class="dpdwn-body">
+                                            <div class="dpdwn"><span></span></div>
+                                            <div class="dpdwn-options">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -68,7 +82,7 @@
                     </div>
                     <div class="it1" id="mode">
                         <header>
-                            <h1>Mode</h1>
+                            <h1>Animation Type</h1>
                             <div id="modedp" class="dpdwn-body">
                                 <div class="dpdwn"><span></span></div>
                                 <div class="dpdwn-options">
@@ -80,7 +94,7 @@
                         </div>
                     </div>
                     <div class="it1">
-                        <header><h1>Mode Options</h1></header>
+                        <header><h1>Animation Options</h1></header>
                         <div class="mopt-box">
                             
                         </div>
@@ -117,6 +131,10 @@
                         <canvas></canvas>
                     </div>
                 </div>
+            </div>
+
+            <div id="menu-btn">
+                <i class="fas fa-bars"></i>
             </div>
         </div>
     </body>

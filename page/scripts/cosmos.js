@@ -88,6 +88,27 @@ function detectMobile() {
 }
 
 window.addEventListener("load", function() {
+    if (detectMobile()) {
+        document.querySelector(".cnt").style.margin = "100px 0 20px 0";
+
+        let lnv = document.querySelector(".lnv");
+        lnv.style.width = 0;
+        
+        let mbtn = document.querySelector("#menu-btn");
+        mbtn.style.display = "flex";
+        mbtn.onclick = function() {
+            let RECT = lnv.getBoundingClientRect();
+            
+            if (RECT.width == 0) {
+                lnv.style.width = 200;
+                mbtn.style.left = 220;
+            } else {
+                lnv.style.width = 0;
+                mbtn.style.left = 20;
+            }
+        }
+    }
+
     let managers = {}
     managers.graph_mng = new GraphManager(managers);
     managers.dvcmanager = new DeviceManager(managers);

@@ -29,7 +29,10 @@ class User extends WsManager {
         }
 
         this.unregisterDevice = function(id) {
-            if (devices[id] != null) devices[id] = null;
+            if (devices[id] != null) {
+                devices[id].clearTimeouts();
+                devices[id] = null;
+            }
         }
 
         this.getDevice = function(id) {

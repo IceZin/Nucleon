@@ -198,45 +198,64 @@ const gpaths = {
     }
 }
 
-function sendColor(dvc, data) {
+function sendColor(dvc, frame) {
     let opcodes, buffer;
-    opcodes = Buffer.from([0x1, 0x4, 0xff])
-    buffer = Buffer.concat([opcodes, Buffer.from(data.color)]);
+    opcodes = Buffer.from([0x1, 0x5, 0xfe, frame.type[2]])
+    buffer = Buffer.concat([opcodes, Buffer.from(frame.data)]);
 
     dvc.send(buffer);
 }
 
-function sendPhases(dvc, data) {
+function sendPhases(dvc, frame) {
+    if (frame.type[2] == 2) {
+        frame.data = [[255, 0, 0], [0, 255, 0], [0, 0, 255]];
+    }
+
+    console.log(frame);
+
     let opcodes, buffer;
-    opcodes = Buffer.from([0x1, 0x4, 0xff])
+    opcodes = Buffer.from([0x1, (frame.data.length * 3) + 0x2, 0xff, frame.type[2]]);
+    buffer = [];
+
+    for (let i = 0; i < frame.data.length; i++) {
+        buffer = buffer.concat(frame.data[i]);
+    }
+
+    let cframe = Buffer.concat([opcodes, Buffer.from(buffer)]);
+    dvc.send(cframe);
+}
+
+function sendMode(dvc, frame) {
+    let opcodes, buffer;
+
+    opcodes = Buffer.from([0x1, frame.data.values.length + 1, frame.data.type])
+    buffer = Buffer.concat([opcodes, Buffer.from(frame.data.values)]);
+
+    dvc.send(buffer);
 }
 
 const modes = {
-    0x1: sendColor,
-    0x2: sendPhases,
-    0x4: sendColor
+    0x0: sendColor,
+    0x1: sendPhases,
+    0x2: sendMode
 }
 
 const ppaths = {
     "/dvc/setData": function(data, headers, res) {
         let user = tokens[headers["api_token"]];
+        console.log(data);
         let dvc = user.getDevice(data.dvc);
 
         if (dvc) {
+            console.log(data);
+
             user.setActiveDevice(data.dvc);
 
-            let opcodes, buffer;
-            let mode = data.mode.type;
-
             try {
-                modes[mode](dvc, data);
-            } catch (err) {}
-
-            opcodes = Buffer.from([0x1, data.mode.values.length + 1, mode])
-            buffer = Buffer.concat([opcodes, Buffer.from(data.mode.values)]);
-
-            console.log(buffer);
-            dvc.send(buffer);
+                modes[data.type[1]](dvc, data);
+            } catch (err) {
+                console.log(err)
+            }
 
             console.log(`[*] Sending data to device ` + data.dvc);
         }
@@ -361,6 +380,10 @@ const upgradeHandlers = {
                 "Sec-WebSocket-Protocol: Device",
                 `Sec-WebSocket-Accept: ${crypto.createHash('sha1').update(key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64')}`
             ]
+
+            if (user.getDevice(device.addr) != null) {
+                user.unregisterDevice(device.addr);
+            }
 
             user.registerDevice(device.addr, device);
 

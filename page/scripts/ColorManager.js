@@ -1,18 +1,39 @@
+import DropDownManager from "./DropDownManager.js"
+
 function gbc(cl) {
     return document.getElementsByClassName(cl);
 }
 
 class ColorManager {
-    constructor() {
+    constructor(managers) {
         let colors = {
-            'hex': '000000',
-            'rgb': [0, 0, 0]
+            hex: '000000',
+            rgb: [0, 0, 0],
+            type: 0
+        }
+        let updates = {
+            0: managers.dvcmanager.sendColor,
+            1: managers.dvcmanager.sendPhases,
+            2: managers.dvcmanager.sendPhases
         }
         let callbacks = {};
 
         let slidersBox = gbc('it1')[0].querySelectorAll('input[type=range]');
         let hex = gbc('hex')[0].querySelector('input');
         let rgbBoxes = gbc('rgb')[0].querySelectorAll('input');
+        let clrType = new DropDownManager('clr-type');
+
+        clrType.createElements([
+            "Solid",
+            "Fade",
+            "Chroma"
+        ])
+
+        clrType.registerUpdate(function(type) {
+            colors.type = type;
+
+            updates[type]();
+        })
 
         let syncBox = () => {
             gbc('it1')[0].querySelector('div[class=el3]').querySelector('div').style.backgroundColor = '#' + colors.hex;
@@ -113,16 +134,24 @@ class ColorManager {
             clr.forEach((color, index) => {
                 rgbBoxes[index].value = color;
             })
+                
+            updateCallbacks();
         }
 
         this.getColor = () => {
             return colors.rgb;
         }
 
+        this.getType = function () {
+            return colors.type;
+        }
+
         let updateCallbacks = function() {
             Object.keys(callbacks).forEach(addr => {
                 callbacks[addr](colors.rgb);
             })
+
+            updates[colors.type]();
         }
 
         this.registerCallback = function(address, callback) {

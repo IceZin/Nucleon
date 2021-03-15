@@ -117,8 +117,8 @@ class PhasesManager {
             }
         }
 
-        let getPhases = function() {
-
+        this.getPhases = function() {
+            return phasesColor;
         }
     }
 }

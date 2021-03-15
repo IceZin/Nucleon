@@ -3,6 +3,9 @@ class Device {
         let mode = null;
         let dvc = this;
         let awaitingPing = false;
+        let packetLoss = 0;
+        let timeoutInterval;
+        let pingTimeout;
 
         this.dvc_data = {
             snd_peak: 0
@@ -17,6 +20,11 @@ class Device {
         console.log(request.headers);
         console.log(request.url);
 
+        this.clearTimeouts = function() {
+            if (timeoutInterval) clearTimeout(timeoutInterval);
+            if (pingTimeout) clearTimeout(pingTimeout);
+        }
+
         this.ping = function() {
             if (!awaitingPing) {
                 try {
@@ -27,14 +35,27 @@ class Device {
 
                 awaitingPing = true;
 
-                setTimeout(() => {
+                pingTimeout = setTimeout(() => {
                     if (awaitingPing) {
-                        if (this.events['end'] != null) this.events['end']();
-                        socket.destroy();
+                        if (timeoutInterval != null) {
+                            timeoutInterval = setTimeout(() => {
+                                packetLoss = 0;
+                            }, 5000);
+                        }
+
+                        packetLoss++;
+                        awaitingPing = false;
+
+                        if (packetLoss >= 5) {
+                            if (this.events['end'] != null) this.events['end']();
+                            socket.destroy();
+                        } else {
+                            this.ping();
+                        }
                     } else {
                         this.ping();
                     }
-                }, 2000);
+                }, 1000);
             }
         }
 
@@ -63,6 +84,9 @@ class Device {
 
         socket.on('data', function (data) {
             onData(data);
+        })
+
+        socket.on('error', function (err) {
         })
 
         this.send = function (data) {

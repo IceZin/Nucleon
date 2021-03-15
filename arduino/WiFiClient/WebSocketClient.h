@@ -3,7 +3,8 @@
 
 #include "Arduino.h"
 #include "LedControl.h"
-#include <WiFi.h>
+#include <WiFiClientSecure.h>
+#include <WiFiClient.h>
 
 class WebSocketClient {
   public:
@@ -22,7 +23,9 @@ class WebSocketClient {
     
     long awaitTimeout = 5000;
     long awaitTime = 0;
-    bool awaitingUpgrade = false;
+    long lastAction = 0;
+    
+    bool awaitingUpgrade = true;
     bool upgrading = false;
     
     void connectToWs(String path);
@@ -30,6 +33,9 @@ class WebSocketClient {
     void clearBuffer();
     void decodeData();
     void sendPong();
+
+    double **phases;
+    int p_len = 0;
     
     WiFiClient *client;
 };

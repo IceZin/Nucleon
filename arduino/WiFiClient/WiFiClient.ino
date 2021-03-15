@@ -1,6 +1,7 @@
 #include "WebSocketClient.h"
 #include "LedControl.h"
-#include <WiFi.h>
+#include <WiFiClientSecure.h>
+#include <WiFiClient.h>
 
 WiFiClient client;
 WebSocketClient webclient;
@@ -12,7 +13,6 @@ void setup() {
   led_manager.setupLeds();
   led_manager.mode = 0x00;
   led_manager.ws = &webclient;
-  led_manager.start();
 
   webclient.strip = &led_manager;
   webclient.connectToWifi();

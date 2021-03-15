@@ -41,7 +41,7 @@ body {
 
 .lgn .form {
     width: 300px;
-    height: 440px;
+    min-height: 440px;
 
     background-color: #1a1a1a;
 

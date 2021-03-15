@@ -23,6 +23,11 @@ class DropDownManager {
 
             let items = dp.querySelectorAll('span');
 
+            activeItem = items[0];
+
+            btn.querySelector('span').innerHTML = activeItem.innerHTML;
+            activeItem.style.backgroundColor = "#6896A0";
+
             items.forEach(function(item, index) {
                 item.onclick = function() {
                     if (item != activeItem) {
@@ -65,6 +70,7 @@ class DropDownManager {
 
         this.registerUpdate = function(callback) {
             callbacks.update.push(callback)
+            callback(0);
         }
     }
 }

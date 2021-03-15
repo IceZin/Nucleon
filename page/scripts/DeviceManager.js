@@ -26,7 +26,7 @@ function req(info, callback) {
         xml.setRequestHeader(header, info.headers[header]);
     });
 
-    if (info.data) xml.send(info.data);
+    if (info.frame) xml.send(info.frame);
     else xml.send();
 
     xml.onreadystatechange = function () {
@@ -111,33 +111,60 @@ class DeviceManager {
             }
         }
 
-        this.sendCmd = function () {
-            if (act_dvc.id) {
-                let cookies = getCookies();
-
-                let data = {
-                    type: "set",
-                    dvc: act_dvc.id,
-                    color: managers.clrmanager.getColor(),
-                    mode: managers.mdmanager.getData()
+        let sendCmd = function (frame) {
+            req({
+                method: "POST",
+                url: "dvc/setData",
+                headers: {
+                    "Content-Type": "application/json",
+                    "api_token": getCookies()['api_token']
+                },
+                frame: JSON.stringify(frame)
+            }, function (resTxt, status, headers) {
+                if (status == 200) {
+                    console.log("[*] Sent data")
                 }
+            });
+        }
 
-                console.log(data);
+        this.sendColor = function() {
+            if (act_dvc.id == null) return;
 
-                req({
-                    method: "POST",
-                    url: "dvc/setData",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "api_token": cookies['api_token']
-                    },
-                    data: JSON.stringify(data)
-                }, function (resTxt, status, headers) {
-                    if (status == 200) {
-                        console.log("[*] Sent data")
-                    }
-                });
+            let clr_type = managers.clrmanager.getType();
+
+            let frame = {
+                type: [1, 0, clr_type],
+                dvc: act_dvc.id,
+                data: managers.clrmanager.getColor()
             }
+
+            sendCmd(frame);
+        }
+
+        this.sendPhases = function() {
+            if (act_dvc.id == null) return;
+
+            let clr_type = managers.clrmanager.getType();
+
+            let frame = {
+                type: [1, 1, clr_type],
+                dvc: act_dvc.id,
+                data: managers.phasesmanager.getPhases()
+            }
+
+            sendCmd(frame);
+        }
+
+        this.updateMode = function() {
+            if (act_dvc.id == null) return;
+
+            let frame = {
+                type: [1, 2],
+                dvc: act_dvc.id,
+                data: managers.mdmanager.getData()
+            }
+
+            sendCmd(frame);
         }
     }
 }

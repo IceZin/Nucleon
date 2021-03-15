@@ -17,9 +17,7 @@ class LedControl {
     void setupLeds();
     void showSolidColor();
     void setColor(int* rgb);
-    void setPhases(int** phases);
-    void setFadeS(int* rgb);
-    void setFadeE(int* rgb);
+    void setColorType(int type);
     void setLen(int len);
     void setDelay(int ms);
     void clearTemp();
@@ -29,16 +27,23 @@ class LedControl {
     
     int8_t mode = 0x00;
     int8_t t = 3;
+    int update_delay = 0;
+
+    int p_sz = 0;
+    double **p;
 
     class WebSocketClient *ws;
   private:
     void trail();
-    void fade();
+    //void fade();
     void spectrum();
     void animateSolid(float intensity);
     void animateLine(float intensity);
-    void rainbow();
-    void calcFade(double intensity, double *phases[3], int* result);
+    void shiftToLeft();
+    void shiftToRight();
+    void setFade();
+    void calcInfiniteFade(double intensity, int ls_size, double **phases, int* result);
+    void calcLinearFade(double intensity, int ls_size, double **phases, int* result);
 
     int sample();
     
@@ -58,18 +63,18 @@ class LedControl {
     int asset = 0;
     int strip_color[3];
     int** fade_color;
-    int update_delay = 0;
-    
+
+    int clr_type = 0;
     int8_t SOLID = 0x1;
-    int8_t FADE = 0x2;
-    int8_t CHROMA = 0x3;
+    int8_t SHIFT_LEFT = 0x2;
+    int8_t SHIFT_RIGHT = 0x3;
     int8_t SPECTRUM = 0x4;
     
-    long update_ms;
     long info_ms;
     long l_action = 0;
     long l_d = 0;
     long lastAutoUpdate = 0;
+    long lastUpdate = 0;
     
     CRGB strip[50];
     arduinoFFT FFT = arduinoFFT();

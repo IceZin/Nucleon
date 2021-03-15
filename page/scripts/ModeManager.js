@@ -103,9 +103,9 @@ class ModeManager {
 
         const modes = [
             "Clear",
-            "Solid",
-            "Fade",
-            "Chroma",
+            "Static",
+            "Shift to Left",
+            "Shift to Right",
             "Spectrum"
         ]
 
@@ -179,7 +179,7 @@ class ModeManager {
             4: function() {
                 mode_opts = [];
 
-                let animTypes = createBox({type: 'opt', name: "Animation Types", opts: ["Solid", "Linear"]});
+                let animTypes = createBox({type: 'opt', name: "Spectrum Animation", opts: ["Solid", "Linear"]});
                 console.log(animTypes);
 
                 createBox({type: 'sw', name: "Auto Mode", id: "mx_val"});
@@ -187,6 +187,8 @@ class ModeManager {
                 let chkManager = new CheckManager(animTypes.querySelectorAll('.opt-el'), animTypes.querySelectorAll('.opt-chk'), true);
                 chkManager.registerUpdate(function(i) {
                     mode_opts[0] = i;
+
+                    managers.dvcmanager.updateMode();
                 })
 
                 managers.swmanager.registerUpdate("md_switches", function (data) {
@@ -195,11 +197,13 @@ class ModeManager {
                     } else {
                         enableElement([3]);
                     }
+
+                    managers.dvcmanager.updateMode();
                 })
                 
                 managers.graph_mng.registerChart({
                     parent: box.querySelector('.graph_box'),
-                    id: 'mx_val',
+                    chart_id: 'mx_val',
                     title: 'Max Sound Intensity'
                 })
             }
@@ -247,8 +251,12 @@ class ModeManager {
                     slider.style.background = `linear-gradient(90deg, rgb(201, 238, 242) ${len}%, rgb(197, 197, 197) ${len}%)`
 
                     title.innerHTML = slider.value;
+
+                    managers.dvcmanager.updateMode();
                 }
             })
+
+            managers.dvcmanager.updateMode();
         })
 
         this.getData = function () {

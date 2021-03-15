@@ -26,7 +26,7 @@ void WebSocketClient::connectToWs(String path) {
   upgrading = true;
   
   String handshake = "GET " + path + " HTTP/1.1\r\n"
-      "Host: 192.168.0.10:8080\r\n"
+      "Host: nucleon.azurewebsites.net\r\n"
       "Connection: Upgrade\r\n"
       "Upgrade: websocket\r\n"
       "Sec-WebSocket-Version: 13\r\n"
@@ -34,7 +34,7 @@ void WebSocketClient::connectToWs(String path) {
       "Cookie: dvc_name=ESP8266 LED;dvc_addr=esp_led;owner=fb501a2157d3eefc\r\n"
       "\r\n";
 
-  client->write(handshake.c_str());
+  client->println(handshake.c_str());
   awaitTime = millis();
 }
 
@@ -46,7 +46,7 @@ void WebSocketClient::readWs() {
   byte i = 0;
 
   if (awaitingUpgrade) {
-    char tmpData[32];
+    char tmpData[128];
     
     while(client->available() > 0) {
       char c = client->read();
@@ -58,10 +58,18 @@ void WebSocketClient::readWs() {
           clearBuffer();
           awaitingUpgrade = false;
           upgrading = false;
+          lastAction = millis();
+          client->print("Test message");
         }
         
         memset(tmpData, 0, sizeof(tmpData));
         i = 0;
+        return;
+      }
+
+      if (i == 128) {
+        Serial.println(tmpData);
+        memset(tmpData, 0, sizeof(tmpData));
         return;
       }
       
@@ -74,38 +82,43 @@ void WebSocketClient::readWs() {
 
 void WebSocketClient::decodeData() {
   int TYPE = client->read();
+  Serial.print("TYPE: ");
+  Serial.println(TYPE);
 
   if (TYPE == 0x0) {
-    client->write((byte)0x0);
+    lastAction = millis();
+    byte buf[1] = {0x0};
+    sendBuff(buf, 1);
     clearBuffer();
   } else if (TYPE == 0x1) {
     int LEN = client->read();
+    Serial.println(LEN);
     int data[LEN];
+
     for (byte i = 0; i < LEN; i++) data[i] = client->read();
+
+    Serial.print("MODE: ");
+    Serial.println(data[0]);
 
     if (data[0] == 0x0) {
       strip->stop();
       strip->clear();
+      strip->mode = 0x0;
     } else if (data[0] == 0x1) {
       strip->stop();
       strip->showSolidColor();
-    } else if (data[0] == 0x3) {
-      strip->clearHeapMem();
-      
-      int **tmp;
-      tmp = new int*[data[1]];
-  
-      for (int i = 0; i < data[1]; i++) {
-        tmp[i] = new int[3];
-        for (int x = 0; i < 3; i++) {
-          tmp[i][x] = data[(i * 3) + x + 2];
-        }
-      }
-  
-      strip->setPhases(tmp);
+      strip->mode = 0x1;
+    } else if (data[0] == 0x2) {
       strip->start();
+      strip->update_delay = data[2];
+      strip->mode = 0x2;
+    } else if (data[0] == 0x3) {
+      strip->start();
+      strip->update_delay = data[2];
       strip->mode = 0x3;
     } else if (data[0] == 0x4) {
+      strip->update_delay = 0;
+      
       int intensity = data[1];
       int decay = data[2];
       
@@ -122,10 +135,29 @@ void WebSocketClient::decodeData() {
       strip->start();
       strip->setSpectrumInfo(intensity, decay, cutoff, mxintensity, animType);
       strip->mode = 0x4;
-    } else if (data[0] == 0xff and LEN == 4) {
+    } else if (data[0] == 0xfe and LEN == 5) {
+      strip->setColorType(data[1]);
       int rgb[3];
-      for (int i = 0; i < 3; i++) rgb[i] = data[i + 1];
+      for (int i = 0; i < 3; i++) rgb[i] = data[i + 2];
       strip->setColor(rgb);
+    } else if (data[0] == 0xff) {
+      if (p_len > 0) {
+        for (int i = 0; i < p_len; i++) delete [] phases[i];
+        delete [] phases;
+      }
+      
+      p_len = (LEN - 2) / 3;
+      phases = new double*[p_len];
+      
+      strip->setColorType(data[1]);
+      strip->p_sz = p_len;
+
+      for (int i = 0; i < p_len; i++) {
+        phases[i] = new double[3];
+        for (int x = 0; x < 3; x++) phases[i][x] = (double)data[(3 * i) + 2 + x];
+      }
+      
+      strip->p = phases;
     }
   }
 }
@@ -140,13 +172,25 @@ void WebSocketClient::update() {
   if (WiFi.status() != WL_CONNECTED) connectToWifi();
   
   if (!client->connected()) {
-     client->connect("192.168.0.10", 8080);
+     Serial.println("[!] Not connected to server");
+     client->connect("192.168.0.10", 80);
      awaitingUpgrade = true;
   }
   
   if (awaitingUpgrade and !upgrading) {
     Serial.println("[*] Attempting connection with WebServer");
-    connectToWs("/dvcCon");
+    Serial.println(client->connected());
+    connectToWs("/");
+  }
+
+  if (!awaitingUpgrade) {
+    if (millis() - lastAction > 12000) {
+      client->stop();
+      awaitingUpgrade = true;
+      lastAction = 0;
+      Serial.println("[!] Server is not sending ping packets");
+      Serial.println("[!] Disconnected");
+    }
   }
   
   if (client->available() > 0) readWs();
